@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.26)
+
+# Disable in-source builds since they would override the Makefile
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
+  message(FATAL_ERROR "In-source builds are not allowed")
+endif()
+
 project(TaskTracker LANGUAGES CXX)
 
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-set(CMAKE_CXX_FLAGS -Wall)
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 20)
