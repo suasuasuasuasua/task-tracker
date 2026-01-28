@@ -7,7 +7,7 @@ endif()
 
 project(TaskTracker LANGUAGES CXX)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+# TODO: enable on dev or ci builds? set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 20)
@@ -60,9 +60,30 @@ else()
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 endif()
+
+FetchContent_Declare(
+  ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+  GIT_TAG v6.1.9 # Replace with a version, tag, or commit hash
+)
+
 FetchContent_MakeAvailable(json)
+FetchContent_MakeAvailable(ftxui)
 
 add_subdirectory(src)
 add_subdirectory(tests)
 
 enable_testing()
+
+add_executable(task-cli app/cli.cpp)
+target_link_libraries(task-cli PRIVATE todo::todo)
+
+add_executable(task-tui app/tui.cpp)
+target_link_libraries(
+  task-tui
+  PRIVATE ftxui::screen
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::component)
+
+install(TARGETS task-cli DESTINATION bin)
+install(TARGETS task-tui DESTINATION bin)
