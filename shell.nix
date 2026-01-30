@@ -5,9 +5,11 @@ pkgs.mkShellNoCC {
 
   packages = with pkgs; [
     cmake
+    ftxui
     git
     llvmPackages_21.clang
     llvmPackages_21.clang-tools
     ninja
+    nlohmann_json
   ];
 }

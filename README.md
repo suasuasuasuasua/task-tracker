@@ -9,11 +9,22 @@ industry standard, so it's not bad to get familiar with.
 
 ## Build
 
+Currently, task-tracker is building against these dependencies. See `shell.nix`
+for more information.
+
+```text
+clang-tidy==21.1.7
+clang==21.1.7
+cmake==4.1.2
+make==4.4.1
+ninja==1.13.1
+```
+
 See the `Makefile` for more recipes on building.
 
 ```bash
 make build
-./build/src/task-cli help
+./build/task-cli help
 ```
 
 Or use `nix` to build.

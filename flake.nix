@@ -29,40 +29,39 @@
     {
       packages.x86_64-linux.default =
         let
-          inherit (nixpkgs.legacyPackages.x86_64-linux) cmake;
+          inherit (nixpkgs.legacyPackages.x86_64-linux)
+            cmake
+            ftxui
+            nlohmann_json
+            ;
           inherit (nixpkgs.legacyPackages.x86_64-linux.llvmPackages_21)
             stdenv
             clang-tools
             ;
-          json_src = builtins.fetchTarball {
-            url = "https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz";
-            sha256 = "1ycyaqzq76n52h3mhrbl6dlyap4l4cfxk3r53hdzg2qqhqrjgqml";
-          };
-
         in
         stdenv.mkDerivation {
           pname = "task-cli";
           version = "0.1.0";
           src = ./.;
           nativeBuildInputs = [
-            cmake
             clang-tools
+            cmake
+            ftxui
+            nlohmann_json
           ];
           configurePhase = ''
-            export json_src=${json_src}
+            export has_nix=true
           '';
           cmakeFlags = [
             "-DCMAKE_BUILD_TYPE=Release"
-            "-Djson_src=${json_src}"
+            "-Dhas_nix=true"
           ];
           buildPhase = ''
-            mkdir build
-            cmake -S . -B build
-            cmake --build build --parallel
+            make build
           '';
           installPhase = ''
             mkdir -p $out/bin
-            cp build/src/task-cli $out/bin
+            cp build/task-cli build/task-tui $out/bin
           '';
         };
 

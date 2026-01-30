@@ -49,10 +49,6 @@ jobs:
         run: |
           direnv allow .
           direnv export gha > "$GITHUB_ENV"
-      - name: Build
-        run: |
-          just setup-release
-          just build
       - name: Flake check
         run: |
           nix flake check
