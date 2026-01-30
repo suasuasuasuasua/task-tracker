@@ -3,7 +3,7 @@
 ## Examples
 
 - [Modal
-popup](https://github.com/ArthurSonzogni/FTXUI/blob/main/examples/component/modal_dialog.cpp)
+  popup](https://github.com/ArthurSonzogni/FTXUI/blob/main/examples/component/modal_dialog.cpp)
   - It may be useful to have a press "n" to create a new note
 
 ## Links

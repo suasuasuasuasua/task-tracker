@@ -1,7 +1,7 @@
 add_library(todo)
 target_sources(
   todo
-  PRIVATE task.cpp todo.cpp
+  PRIVATE task.cpp todo.cpp todo_viewmodel.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_SOURCE_DIR}/inc)
 add_library(todo::todo ALIAS todo)
 target_link_libraries(todo PUBLIC nlohmann_json::nlohmann_json)
@@ -12,6 +12,7 @@ target_link_libraries(task-cli PRIVATE todo::todo)
 add_executable(task-tui ${CMAKE_SOURCE_DIR}/app/tui.cpp)
 target_link_libraries(
   task-tui
+  PUBLIC todo::todo
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
   PRIVATE ftxui::component)
