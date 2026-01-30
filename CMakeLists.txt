@@ -7,20 +7,22 @@ endif()
 
 project(TaskTracker LANGUAGES CXX)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+# TODO: enable on dev or ci builds? set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# NOTE: nix requires extra steps because include folders are in the nix store
-# https://mzhang.io/posts/2022-03-03-clangd-in-nix/
-#
-# though, this is not good practice according to cmake docs
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
-      ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+if(DEFINED ENV{has_nix})
+  # NOTE: nix requires extra steps because include folders are in the nix store
+  # https://mzhang.io/posts/2022-03-03-clangd-in-nix/
+  #
+  # though, this is not good practice according to cmake docs
+  if(CMAKE_EXPORT_COMPILE_COMMANDS)
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
+        ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+  endif()
 endif()
 
 # Check the build type
@@ -51,18 +53,38 @@ message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 include(FetchContent)
 
 # third-party deps
-if(DEFINED ENV{json_src})
-  message("Fetching json source from env var: $ENV{json_src}")
-  FetchContent_Declare(json SOURCE_DIR "$ENV{json_src}")
+if(DEFINED ENV{has_nix})
+  message("Using nix deps")
+  find_package(nlohmann_json 3.12.0 REQUIRED)
+  find_package(ftxui 6.1.9 REQUIRED)
 else()
-  message("Fetching json source from git")
+  message("Fetching deps from git")
   FetchContent_Declare(
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+  FetchContent_Declare(
+    ftxui
+    GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+    GIT_TAG v6.1.9 # Replace with a version, tag, or commit hash
+  )
+  FetchContent_MakeAvailable(json)
+  FetchContent_MakeAvailable(ftxui)
 endif()
-FetchContent_MakeAvailable(json)
 
 add_subdirectory(src)
 add_subdirectory(tests)
 
 enable_testing()
+
+add_executable(task-cli app/cli.cpp)
+target_link_libraries(task-cli PRIVATE todo::todo)
+
+add_executable(task-tui app/tui.cpp)
+target_link_libraries(
+  task-tui
+  PRIVATE ftxui::screen
+  PRIVATE ftxui::dom
+  PRIVATE ftxui::component)
+
+install(TARGETS task-cli DESTINATION bin)
+install(TARGETS task-tui DESTINATION bin)
