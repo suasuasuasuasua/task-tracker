@@ -73,7 +73,7 @@ else()
   FetchContent_Declare(
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-  FetchContent_MakeAvailable(ftxui gtest json)
+  FetchContent_MakeAvailable(ftxui googletest json)
 endif()
 
 add_subdirectory(src)
@@ -87,6 +87,7 @@ target_link_libraries(task-cli PRIVATE todo::todo)
 add_executable(task-tui app/tui.cpp)
 target_link_libraries(
   task-tui
+  PRIVATE todo::todo
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
   PRIVATE ftxui::component)
