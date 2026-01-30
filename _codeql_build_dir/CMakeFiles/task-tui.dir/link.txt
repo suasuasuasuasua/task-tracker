@@ -1,0 +1,1 @@
+/home/runner/work/task-tracker/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -O3 -Wl,--dependency-file=CMakeFiles/task-tui.dir/link.d "CMakeFiles/task-tui.dir/app/tui.cpp.o" -o task-tui  src/libtodo.a _deps/ftxui-build/libftxui-screen.a _deps/ftxui-build/libftxui-dom.a _deps/ftxui-build/libftxui-component.a _deps/ftxui-build/libftxui-dom.a _deps/ftxui-build/libftxui-screen.a

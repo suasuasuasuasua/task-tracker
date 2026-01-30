@@ -1,0 +1,2 @@
+/usr/bin/ar qc libtodo.a CMakeFiles/todo.dir/task.cpp.o CMakeFiles/todo.dir/todo.cpp.o CMakeFiles/todo.dir/task_viewmodel.cpp.o
+/usr/bin/ranlib libtodo.a
