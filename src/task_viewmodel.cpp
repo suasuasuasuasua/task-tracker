@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <format>
 #include <ranges>
+#include <stdexcept>
 
 TaskTrackerViewModel::TaskTrackerViewModel(
     const std::filesystem::path &filepath)
@@ -119,7 +120,14 @@ void TaskTrackerViewModel::applyFilter() {
   selected_index_ = 0; // Reset selection when filter changes
 }
 
-void TaskTrackerViewModel::save() { model_.to_json(filepath_); }
+void TaskTrackerViewModel::save() {
+  try {
+    model_.to_json(filepath_);
+  } catch (const std::exception &e) {
+    status_message_ = std::string("Error saving: ") + e.what();
+    throw; // Re-throw so caller can also handle if needed
+  }
+}
 
 // ==========================================================================
 // Presentation Helpers
@@ -143,7 +151,7 @@ ftxui::Color TaskTrackerViewModel::getStatusColor(Task::Status status) {
   return Color::White;
 }
 
-const std::vector<std::string> &TaskTrackerViewModel::getFilterOptions() {
+std::vector<std::string> &TaskTrackerViewModel::filterOptions() {
   return filter_options_;
 }
 

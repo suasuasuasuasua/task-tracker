@@ -20,6 +20,7 @@
 #include "ftxui/dom/elements.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <string>
 
 #include "task_viewmodel.h"
@@ -27,10 +28,10 @@
 using namespace ftxui;
 
 /**
- * @brief Get the file path for storing tasks.
+ * @brief Get the file path for storing task data.
  * @return Path to todo.json in home directory or current directory
  */
-std::filesystem::path getConfigPath() {
+std::filesystem::path getTaskFilePath() {
   const std::string filename = "todo.json";
   if (auto home_dir = std::getenv("HOME"); home_dir != nullptr) {
     return std::filesystem::path(home_dir) / filename;
@@ -124,7 +125,7 @@ ComponentDecorator mainEventHandler(TaskTrackerViewModel &viewmodel,
  */
 Element buildHelpText() {
   return hbox({
-             text("(a)dd") | color(Color::Green),
+             text("Enter=add"),
              text(" | "),
              text("(d)elete") | color(Color::Red),
              text(" | "),
@@ -166,7 +167,7 @@ Element buildTaskElement(const Task &task, bool is_selected) {
 
 int main() {
   // Initialize ViewModel with persistence path
-  auto filepath = getConfigPath();
+  auto filepath = getTaskFilePath();
   TaskTrackerViewModel viewmodel(filepath);
 
   // Create screen
@@ -195,13 +196,11 @@ int main() {
   auto task_menu = Menu(&viewmodel.getTaskEntries(), &viewmodel.selectedIndex(),
                         menu_option);
 
-  // Filter toggle
-  // Note: We need to use const_cast here because FTXUI Toggle requires
-  // non-const reference, but our getFilterOptions returns const reference.
-  // This is safe because we're not modifying the options.
-  auto &filter_options =
-      const_cast<std::vector<std::string> &>(viewmodel.getFilterOptions());
-  auto filter_toggle = Toggle(&filter_options, &viewmodel.filterIndex());
+  // Filter toggle with on_change callback to apply filter
+  ToggleOption toggle_option;
+  toggle_option.on_change = [&viewmodel] { viewmodel.applyFilter(); };
+  auto filter_toggle =
+      Toggle(&viewmodel.filterOptions(), &viewmodel.filterIndex(), toggle_option);
 
   // ==========================================================================
   // Create Container (defines focus navigation)
@@ -274,15 +273,6 @@ int main() {
 
   renderer |= mainEventHandler(viewmodel, screen);
 
-  // Handle filter changes from Toggle component
-  filter_toggle |= CatchEvent([&viewmodel](Event event) {
-    if (event == Event::Return || event == Event::Character(' ')) {
-      // Toggle component will update filterIndex, then we apply filter
-      viewmodel.applyFilter();
-    }
-    return false; // Don't consume, let Toggle handle it
-  });
-
   // ==========================================================================
   // Run the Application
   // ==========================================================================
@@ -290,7 +280,14 @@ int main() {
   screen.Loop(renderer);
 
   // Save on exit
-  viewmodel.save();
+  try {
+    viewmodel.save();
+  } catch (const std::exception &e) {
+    // In a production app, you might want to show an error dialog
+    // For now, we print to stderr since the TUI has already exited
+    std::cerr << "Error saving tasks: " << e.what() << std::endl;
+    return 1;
+  }
 
   return 0;
 }

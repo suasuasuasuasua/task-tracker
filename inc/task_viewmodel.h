@@ -150,9 +150,13 @@ public:
 
   /**
    * @brief Get filter option labels for Toggle component.
-   * @return Vector of filter labels: {"All", "Todo", "In Progress", "Done"}
+   *
+   * Returns a mutable reference to allow binding to FTXUI Toggle component.
+   * The options themselves should not be modified at runtime.
+   *
+   * @return Mutable reference to filter labels vector
    */
-  static const std::vector<std::string> &getFilterOptions();
+  std::vector<std::string> &filterOptions();
 
 private:
   // Model
@@ -165,11 +169,11 @@ private:
   int selected_index_ = 0;
   int filter_index_ = 0; // 0=All, 1=Todo, 2=InProgress, 3=Done
   std::string input_text_;
-  std::string status_message_ = "Ready. Press 'h' for help.";
+  std::string status_message_ = "Ready. Use Enter to add tasks, arrow keys to navigate.";
 
-  // Filter options (static)
-  inline static const std::vector<std::string> filter_options_ = {
-      "All", "Todo", "In Progress", "Done"};
+  // Filter options (mutable to allow FTXUI binding)
+  std::vector<std::string> filter_options_ = {"All", "Todo", "In Progress",
+                                              "Done"};
 
   /**
    * @brief Refresh the filtered task list and task entries.
