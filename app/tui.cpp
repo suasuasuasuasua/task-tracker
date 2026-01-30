@@ -40,29 +40,25 @@ std::filesystem::path getTaskFilePath() {
 }
 
 /**
- * @brief Create an event handler for quitting the application.
- * @param screen Reference to the screen to exit
- * @return Component decorator that catches 'q' and 'Q' keys
- */
-ComponentDecorator quitHandler(ScreenInteractive &screen) {
-  return CatchEvent([&screen](Event event) {
-    if (event == Event::Character('q') || event == Event::Character('Q')) {
-      screen.ExitLoopClosure()();
-      return true;
-    }
-    return false;
-  });
-}
-
-/**
  * @brief Create the main event handler for task operations.
  * @param viewmodel Reference to the ViewModel
  * @param screen Reference to the screen (for exiting)
+ * @param input_component Reference to input component to check focus state
  * @return Component decorator that handles all keyboard shortcuts
+ *
+ * Note: Keyboard shortcuts are only active when the input field is NOT focused,
+ * allowing normal text entry in the input field.
  */
 ComponentDecorator mainEventHandler(TaskTrackerViewModel &viewmodel,
-                                    ScreenInteractive &screen) {
-  return CatchEvent([&viewmodel, &screen](Event event) {
+                                    ScreenInteractive &screen,
+                                    Component &input_component) {
+  return CatchEvent([&viewmodel, &screen, &input_component](Event event) {
+    // If input is focused, don't intercept character events
+    // This allows typing in the input field without triggering shortcuts
+    if (input_component->Focused() && event.is_character()) {
+      return false; // Let the input component handle the character
+    }
+
     // Quit
     if (event == Event::Character('q') || event == Event::Character('Q')) {
       screen.ExitLoopClosure()();
@@ -121,7 +117,7 @@ ComponentDecorator mainEventHandler(TaskTrackerViewModel &viewmodel,
 
 /**
  * @brief Build the help text element.
- * @return Element displaying keyboard shortcuts
+ * @return Element displaying keyboard shortcuts (active when not typing)
  */
 Element buildHelpText() {
   return hbox({
@@ -271,7 +267,7 @@ int main() {
   // Add Event Handlers
   // ==========================================================================
 
-  renderer |= mainEventHandler(viewmodel, screen);
+  renderer |= mainEventHandler(viewmodel, screen, input_component);
 
   // ==========================================================================
   // Run the Application
