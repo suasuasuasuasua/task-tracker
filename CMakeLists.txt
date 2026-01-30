@@ -80,16 +80,3 @@ add_subdirectory(src)
 add_subdirectory(tests)
 
 enable_testing()
-
-add_executable(task-cli app/cli.cpp)
-target_link_libraries(task-cli PRIVATE todo::todo)
-
-add_executable(task-tui app/tui.cpp)
-target_link_libraries(
-  task-tui
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component)
-
-install(TARGETS task-cli DESTINATION bin)
-install(TARGETS task-tui DESTINATION bin)

@@ -63,7 +63,7 @@
           '';
           installPhase = ''
             mkdir -p $out/bin
-            cp build/task-cli build/task-tui $out/bin
+            cp build/bin/* $out/bin
           '';
         };
 
