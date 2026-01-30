@@ -7,6 +7,7 @@ pkgs.mkShellNoCC {
     cmake
     ftxui
     git
+    gtest
     llvmPackages_21.clang
     llvmPackages_21.clang-tools
     ninja

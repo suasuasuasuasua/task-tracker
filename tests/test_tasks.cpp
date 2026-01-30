@@ -1,28 +1,29 @@
 #include <cassert>
 #include <chrono>
-#include <iostream>
+#include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
 #include "task.h"
 
 using json = nlohmann::json;
 
-void test_TaskCreate() {
+namespace {
+TEST(TaskTest, Create) {
   auto time = std::chrono::system_clock::now();
   auto t = Task(0, "Get groceries", Task::Status::ToDo, time, time);
-  assert(t.getStatus() == Task::Status::ToDo);
+  EXPECT_EQ(t.getStatus(), Task::Status::ToDo);
 
   t.setStatus(Task::Status::InProgress);
-  assert(t.getStatus() == Task::Status::InProgress);
+  EXPECT_EQ(t.getStatus(), Task::Status::InProgress);
 
   t.setStatus(Task::Status::Done);
-  assert(t.getStatus() == Task::Status::Done);
+  EXPECT_EQ(t.getStatus(), Task::Status::Done);
 
-  assert(t.getCreationDate() == time);
-  assert(t.getUpdatedDate() == time);
+  EXPECT_EQ(t.getCreationDate(), time);
+  EXPECT_EQ(t.getUpdatedDate(), time);
 }
 
-void test_TaskSerialize() {
+TEST(TaskTest, Serialize) {
   auto time = std::chrono::system_clock::now();
   auto t = Task(0, "Get groceries", Task::Status::ToDo, time, time);
 
@@ -33,10 +34,10 @@ void test_TaskSerialize() {
                {"creation_date", time_f},
                {"updated_date", time_f}};
 
-  assert(t.serialize() == data);
+  EXPECT_EQ(t.serialize(), data);
 }
 
-void test_TaskDeserialize() {
+TEST(TaskTest, Deserialize) {
   auto time = std::chrono::system_clock::now();
   std::string time_f = std::format("{:%Y%m%d%H%M}", time);
 
@@ -48,13 +49,6 @@ void test_TaskDeserialize() {
 
   auto t = Task::deserialize(data);
 
-  assert(t.serialize() == data);
+  EXPECT_EQ(t.serialize(), data);
 }
-int main() {
-  test_TaskCreate();
-  test_TaskSerialize();
-  test_TaskDeserialize();
-
-  std::cout << "All tests passed!" << std::endl;
-  return 0;
-}
+} // namespace

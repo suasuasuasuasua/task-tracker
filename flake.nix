@@ -32,6 +32,7 @@
           inherit (nixpkgs.legacyPackages.x86_64-linux)
             cmake
             ftxui
+            gtest
             nlohmann_json
             ;
           inherit (nixpkgs.legacyPackages.x86_64-linux.llvmPackages_21)
@@ -47,6 +48,7 @@
             clang-tools
             cmake
             ftxui
+            gtest
             nlohmann_json
           ];
           configurePhase = ''

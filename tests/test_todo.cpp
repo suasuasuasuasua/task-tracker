@@ -1,6 +1,5 @@
-#include <cassert>
 #include <chrono>
-#include <iostream>
+#include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
 #include "task.h"
@@ -8,7 +7,8 @@
 
 using json = nlohmann::json;
 
-void test_TodoTrackerEmpty() {
+namespace {
+TEST(TodoTrackerTest, isEmpty) {
   TodoTracker todolist;
 
   json data = {
@@ -17,10 +17,10 @@ void test_TodoTrackerEmpty() {
       {"tasks", json::array()},
   };
 
-  assert(todolist.serialize() == data);
+  EXPECT_EQ(todolist.serialize(), data);
 }
 
-void test_TodoTrackerSerialize() {
+TEST(TodoTrackerTest, Serialize) {
   TodoTracker todolist;
   auto time = std::chrono::system_clock::now();
   Task t0 = Task(0, "Do the laundry", Task::Status::ToDo, time, time);
@@ -49,10 +49,10 @@ void test_TodoTrackerSerialize() {
                 })},
   };
 
-  assert(todolist.serialize() == data);
+  EXPECT_EQ(todolist.serialize(), data);
 }
 
-void test_TodoTrackerDeserialize() {
+TEST(TodoTrackerTest, Deserialize) {
   auto time = std::chrono::system_clock::now();
   std::string time_f = std::format("{:%Y%m%d%H%M}", time);
   json data = {
@@ -78,14 +78,6 @@ void test_TodoTrackerDeserialize() {
 
   auto todolist = TodoTracker::deserialize(data);
 
-  assert(todolist.serialize() == data);
+  EXPECT_EQ(todolist.serialize(), data);
 }
-
-int main() {
-  test_TodoTrackerEmpty();
-  test_TodoTrackerSerialize();
-  test_TodoTrackerDeserialize();
-
-  std::cout << "All tests passed!" << std::endl;
-  return 0;
-}
+} // namespace

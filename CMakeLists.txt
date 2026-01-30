@@ -55,20 +55,24 @@ include(FetchContent)
 # third-party deps
 if(DEFINED ENV{has_nix})
   message("Using nix deps")
-  find_package(nlohmann_json 3.12.0 REQUIRED)
   find_package(ftxui 6.1.9 REQUIRED)
+  find_package(GTest 1.17.0 REQUIRED)
+  find_package(nlohmann_json 3.12.0 REQUIRED)
 else()
   message("Fetching deps from git")
-  FetchContent_Declare(
-    json
-    URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
   FetchContent_Declare(
     ftxui
     GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
     GIT_TAG v6.1.9 # Replace with a version, tag, or commit hash
   )
-  FetchContent_MakeAvailable(json)
-  FetchContent_MakeAvailable(ftxui)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz
+  )
+  FetchContent_Declare(
+    json
+    URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+  FetchContent_MakeAvailable(ftxui gtest json)
 endif()
 
 add_subdirectory(src)
