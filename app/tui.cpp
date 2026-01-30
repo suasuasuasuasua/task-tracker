@@ -1,61 +1,91 @@
-#include "ftxui/component/component.hpp"      // for Input, Renderer, Vertical
-#include "ftxui/component/component_base.hpp" // for ComponentBase
-#include "ftxui/component/screen_interactive.hpp" // for Component, ScreenInteractive
-#include "ftxui/dom/elements.hpp" // for text, hbox, separator, Element, operator|, vbox, border
-#include <ftxui/dom/deprecated.hpp>
-#include <ftxui/dom/node.hpp>
-#include <ranges>
-#include <vector>
+// Copyright 2022 Arthur Sonzogni. All rights reserved.
+// Use of this source code is governed by the MIT license that can be found in
+// the LICENSE file.
+#include <ftxui/component/component_options.hpp> // for ButtonOption
+#include <ftxui/component/mouse.hpp>             // for ftxui
+#include <functional>                            // for function
+#include <memory>                                // for allocator, shared_ptr
+
+#include "ftxui/component/component.hpp" // for Button, operator|=, Renderer, Vertical, Modal
+#include "ftxui/component/screen_interactive.hpp" // for ScreenInteractive, Component
+#include "ftxui/dom/elements.hpp" // for operator|, separator, text, size, Element, vbox, border, GREATER_THAN, WIDTH, center, HEIGHT
 
 using namespace ftxui;
 
-ComponentDecorator handler_quit(ScreenInteractive &screen) {
-  return CatchEvent([&](Event event) {
-    if (event == Event::q or event == Event::Q) {
-      screen.ExitLoopClosure()();
-      return true;
-    }
-    return false;
+auto button_style = ButtonOption::Simple();
+
+// Definition of the main component. The details are not important.
+Component MainComponent(std::function<void()> show_modal,
+                        std::function<void()> exit) {
+  auto component = Container::Vertical({
+      Button("Add Task", show_modal, button_style),
+      Button("Quit", exit, button_style),
   });
+  // Polish how the two buttons are rendered:
+  component |= Renderer([&](Element inner) {
+    auto comp = vbox({
+                    text("Main component"),
+                    separator(),
+                    inner,
+                }) |
+                border;
+
+    return window(text("Task Tracker"), comp);
+  });
+  return component;
 }
 
-int main(int argc, char *argv[]) {
-  std::vector<std::string> tasks;
-  std::string cur_task;
-  std::vector<Element> ts;
+// Definition of the modal component. The details are not important.
+Component ModalComponent(std::string &data, std::function<void()> do_nothing,
+                         std::function<void()> hide_modal) {
 
-  Component input_task = Input(&cur_task, "Task:");
-  input_task |= CatchEvent([&tasks, &cur_task](Event event) {
-    if (event == Event::Return) {
-      tasks.push_back(cur_task);
-      cur_task.clear();
-      return true;
-    }
-    return false;
+  auto input_options = InputOption::Spacious();
+  input_options.multiline = false;
+
+  auto text_field = Input(&data, "Enter a task!", input_options);
+
+  auto component = Container::Vertical({
+      text_field,
+      Button("Do nothing", do_nothing, button_style),
+      Button("Quit modal", hide_modal, button_style),
+  });
+  // Polish how the two buttons are rendered:
+  component |= Renderer([&](Element inner) {
+    return vbox({
+               text("Modal component "),
+               separator(),
+               inner,
+           })                              //.
+           | size(WIDTH, GREATER_THAN, 30) //
+           | border;                       //
   });
 
+  return component;
+}
+
+int main(int argc, const char *argv[]) {
   auto screen = ScreenInteractive::Fullscreen();
-  auto component = Container::Vertical({input_task});
-  auto renderer = Renderer(component, [&] {
-    ts = std::vector<Element>(tasks.size());
-    std::transform(tasks.begin(), tasks.end(), ts.begin(),
-                   [](const auto &t) { return text(t); });
 
-    auto display_ele = vbox({
-        text("Enter a new task"),
-        input_task->Render(),
-        vbox(ts),
-        hbox({
-            text("left") | border,
-            text("middle") | border,
-            text("right") | border,
-        }),
-        separator(),
-        text("Press (q) to quit"),
-    });
+  // State of the application:
+  bool task_input_shown = false;
 
-    return vbox({window(text("Task Tracker"), display_ele)});
-  });
-  // renderer | handler_quit(screen);
-  screen.Loop(renderer);
+  // Some actions modifying the state:
+  auto show_modal = [&] { task_input_shown = true; };
+  auto hide_modal = [&] { task_input_shown = false; };
+  auto exit = screen.ExitLoopClosure();
+  auto do_nothing = [&] {};
+
+  std::string data;
+
+  // Instanciate the main and modal components:
+  auto main_component = MainComponent(show_modal, exit);
+  auto modal_component = ModalComponent(data, do_nothing, hide_modal);
+
+  // Use the `Modal` function to use together the main component and its modal
+  // window. The |modal_shown| boolean controls whether the modal is shown or
+  // not.
+  main_component |= Modal(modal_component, &task_input_shown);
+
+  screen.Loop(main_component);
+  return 0;
 }
