@@ -6,7 +6,6 @@ pkgs.mkShellNoCC {
   packages = with pkgs; [
     cmake
     git
-    just
     llvmPackages_21.clang
     llvmPackages_21.clang-tools
     ninja

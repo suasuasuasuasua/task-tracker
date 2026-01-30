@@ -9,11 +9,10 @@ industry standard, so it's not bad to get familiar with.
 
 ## Build
 
-See the `justfile` for more recipes on building.
+See the `Makefile` for more recipes on building.
 
 ```bash
-just setup-release
-just build
+make build
 ./build/src/task-cli help
 ```
 
