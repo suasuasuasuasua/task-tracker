@@ -7,7 +7,8 @@ endif()
 
 project(TaskTracker LANGUAGES CXX)
 
-# TODO: enable on dev or ci builds? set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+# TODO: enable on dev or ci builds? takes a while to get through ftxui
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 20)
