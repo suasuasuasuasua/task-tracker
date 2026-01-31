@@ -41,3 +41,4 @@ todo.json
 compile_commands.json
 result
 logs
+_codeql_build_dir/
