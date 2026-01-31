@@ -9,6 +9,7 @@
 #include "ftxui/dom/elements.hpp"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
+#include "task.h"
 #include "todo_viewmodel.h"
 
 using namespace ftxui;
@@ -120,19 +121,40 @@ int main(int argc, const char *argv[]) {
   main_component |= CatchEvent([&tvm, &screen](Event event) {
     if (event == Event::d) {
       spdlog::get(logger_name)
-          ->info("Key [d] Deleting selected task {}.",
-                 tvm.get_selected_task_const());
+          ->debug("Key [d] Deleting selected task: {}.",
+                  tvm.get_selected_task_const());
       tvm.delete_selected_task();
       return true;
     }
+    if (event == Event::i) {
+      spdlog::get(logger_name)
+          ->debug("Key [i] Marking task in-progress: {}",
+                  tvm.get_selected_task_const());
+      tvm.mark_task(::Task::Status::InProgress);
+      return true;
+    }
+    if (event == Event::m) {
+      spdlog::get(logger_name)
+          ->debug("Key [m] Marking task complete: {}",
+                  tvm.get_selected_task_const());
+      tvm.mark_task(::Task::Status::Done);
+      return true;
+    }
     if (event == Event::n) {
-      spdlog::get(logger_name)->info("Key [n] Showing 'add task' modal.");
+      spdlog::get(logger_name)->debug("Key [n] Showing 'add task' modal.");
       tvm.addtask_show()();
       return true;
     }
     if (event == Event::q) {
-      spdlog::get(logger_name)->info("Key [q] Quit program requested.");
+      spdlog::get(logger_name)->debug("Key [q] Quit program requested.");
       screen.ExitLoopClosure()();
+      return true;
+    }
+    if (event == Event::t) {
+      spdlog::get(logger_name)
+          ->debug("Key [t] Marking task todo: {}",
+                  tvm.get_selected_task_const());
+      tvm.mark_task(::Task::Status::ToDo);
       return true;
     }
     return false;
