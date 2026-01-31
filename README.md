@@ -1,5 +1,26 @@
 # Task Tracker in C++
 
+A task tracker (todo list) implemented in C++ (targetting C++=20) using FTXUI
+for the tui library.
+
+## Usage
+
+The `todo.json` file is stored under `$HOME/todo.json` by default for ease of
+access. Or, if home is not accessible, it is stored under the local directory.
+
+```bash
+./task-tui
+```
+
+Or, you can build or run with `nix` directly.
+
+```bash
+nix build git@github.com/suasuasuasuasua/task-tracker
+./result/bin/task-tui
+
+nix run git@github.com/suasuasuasuasua/task-tracker
+```
+
 ## Build
 
 Currently, task-tracker is building against these dependencies. See `shell.nix`
@@ -14,8 +35,8 @@ ninja==1.13.1
 ```
 
 See the `Makefile` for more targets. Of note, you can change the
-`CMAKE_BUILD_TYPE` to something other than Release if you need debug symbols or
-whatnot.
+`CMAKE_BUILD_TYPE` to something other than 'Release' if you need debug symbols
+or whatnot.
 
 ```bash
 make build
@@ -37,25 +58,6 @@ be changed to a local directory in case you don't have `sudo` access.
 ```bash
 # by default, installs to /usr/local/bin which requires sudo access
 make install CMAKE_INSTALL_PREFIX=~/.local
-```
-
-## Usage
-
-The `todo.json` file is stored under `$HOME/todo.json` by default for ease of
-access. Or, if home is not accessible, it is stored under the local directory.
-
-```bash
-./task-tui
-```
-
-Or, you can build or run with `nix` directly.
-
-```bash
-#
-nix build git@github.com/suasuasuasuasua/task-tracker
-./result/bin/task-tui
-
-nix run git@github.com/suasuasuasuasua/task-tracker
 ```
 
 ## Archive
