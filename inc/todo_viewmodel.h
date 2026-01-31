@@ -8,7 +8,8 @@
 #include <vector>
 class TodoViewModel {
 public:
-  TodoViewModel(const std::filesystem::path filepath) : filepath(filepath) {
+  TodoViewModel(const std::filesystem::path filepath)
+      : filepath(filepath), addtask_input_shown(false) {
     model.from_json(filepath);
 
     // initialize the tasks and task entries
@@ -19,8 +20,8 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
   // Model logic
-  // setters
   void add_task();
+  void delete_selected_task();
 
   //////////////////////////////////////////////////////////////////////////////
   // ViewModel logic
@@ -29,14 +30,18 @@ public:
   const std::string &get_input_text_const() const;
   const std::vector<std::string> &get_task_entries_const() const;
   const std::int32_t &get_selected_task_const() const;
+  const bool &get_addtask_input_shown() const;
 
   // mutable refs getters
   std::string &get_input_text();
   std::vector<std::string> &get_task_entries();
-  std::int32_t &get_seleted_task();
+  std::int32_t &get_selected_task();
 
-  // other
-  void delete_selected_task();
+  //////////////////////////////////////////////////////////////////////////////
+  // View logic
+  // callbacks (closures)
+  std::function<void()> addtask_show();
+  std::function<void()> addtask_hide();
 
 private:
   // model data (data structures)
@@ -48,6 +53,8 @@ private:
   std::vector<Task> filtered_tasks;       // set of tasks (filter(s) applied)
   std::vector<std::string> tasks_entries; // tasks displayed in the menu
   std::int32_t selected_task_idx;         // the currented selected task
+
+  bool addtask_input_shown;
 
   // helpers
   void refresh_tasks();
