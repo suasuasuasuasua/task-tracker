@@ -1,5 +1,5 @@
 { self, pkgs, ... }:
-pkgs.mkShellNoCC {
+pkgs.mkShell.override { inherit (pkgs.llvmPackages_21) stdenv; } {
   inherit (self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks-check) shellHook;
   buildInputs = self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks-check.enabledPackages;
 
@@ -8,8 +8,6 @@ pkgs.mkShellNoCC {
     ftxui
     git
     gtest
-    llvmPackages_21.clang
-    llvmPackages_21.clang-tools
     ninja
     nlohmann_json
   ];

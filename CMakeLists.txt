@@ -7,7 +7,8 @@ endif()
 
 project(TaskTracker LANGUAGES CXX)
 
-# TODO: enable on dev or ci builds? set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+# TODO: enable on dev or ci builds? takes a while to get through ftxui
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 20)
@@ -72,23 +73,10 @@ else()
   FetchContent_Declare(
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-  FetchContent_MakeAvailable(ftxui gtest json)
+  FetchContent_MakeAvailable(ftxui googletest json)
 endif()
 
 add_subdirectory(src)
 add_subdirectory(tests)
 
 enable_testing()
-
-add_executable(task-cli app/cli.cpp)
-target_link_libraries(task-cli PRIVATE todo::todo)
-
-add_executable(task-tui app/tui.cpp)
-target_link_libraries(
-  task-tui
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component)
-
-install(TARGETS task-cli DESTINATION bin)
-install(TARGETS task-tui DESTINATION bin)
