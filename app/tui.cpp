@@ -109,24 +109,22 @@ int main(int argc, const char *argv[]) {
   auto main_component = MainComponent(tvm, addtask_show_modal, exit_prog);
   auto add_task_component = AddTaskComponent(tvm, addtask_hide_modal);
 
+  main_component |= CatchEvent([&addtask_show_modal, &exit_prog](Event event) {
+    if (event == Event::n) {
+      addtask_show_modal();
+      return true;
+    }
+    if (event == Event::q) {
+      exit_prog();
+      return true;
+    }
+    return false;
+  });
+
   // Use the `Modal` function to use together the main component and its modal
   // window. The |modal_shown| boolean controls whether the modal is shown or
   // not.
   main_component |= Modal(add_task_component, &addtask_input_shown);
-
-  // // TODO: catch being intercepted by modals
-  // main_component |= CatchEvent([&addtask_show_modal, &exit_prog](Event event)
-  // {
-  //   if (event == Event::n) {
-  //     addtask_show_modal();
-  //     return true;
-  //   }
-  //   if (event == Event::q) {
-  //     exit_prog();
-  //     return true;
-  //   }
-  //   return false;
-  // });
 
   screen.Loop(main_component);
   return 0;
