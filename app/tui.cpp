@@ -15,18 +15,17 @@ using namespace ftxui;
 
 constexpr std::string logger_name = "logger";
 
-Component MainComponent(TodoViewModel &tvm,
-                        std::function<void()> addtask_show_modal,
-                        std::function<void()> exit) {
+Component MainComponent(TodoViewModel &tvm) {
   // define the menulist of task items
   // the entries are defined via const reference, and the index is a mutable ref
-  auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_seleted_task());
+  auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_selected_task());
 
   auto button_style = ButtonOption::Simple();
   auto component = Container::Vertical({
-      Button("Add Task", addtask_show_modal, button_style),
+      Button("Add Task", tvm.addtask_show(), button_style),
       tasklist,
-      Button("Quit", exit, button_style),
+      // TODO: add exit button back with callback. should it be in viewmodel?
+      // Button("Quit", exit, button_style),
   });
 
   // Polish how the two buttons are rendered:
@@ -47,8 +46,7 @@ Component MainComponent(TodoViewModel &tvm,
   return component;
 }
 
-Component AddTaskComponent(TodoViewModel &tvm,
-                           std::function<void()> hide_modal) {
+Component AddTaskComponent(TodoViewModel &tvm) {
 
   auto input_options = InputOption::Spacious();
   input_options.multiline = false;
@@ -60,7 +58,7 @@ Component AddTaskComponent(TodoViewModel &tvm,
   auto button_style = ButtonOption::Simple();
   auto component = Container::Vertical({
       text_field,
-      Button("Quit", hide_modal, button_style),
+      Button("Quit", tvm.addtask_hide(), button_style),
   });
   // Polish how the two buttons are rendered:
   component |= Renderer([&](Element inner) {
@@ -72,9 +70,9 @@ Component AddTaskComponent(TodoViewModel &tvm,
            size(WIDTH, GREATER_THAN, 80) | border;
   });
 
-  component |= CatchEvent([&hide_modal](Event event) {
+  component |= CatchEvent([&tvm](Event event) {
     if (event == Event::Escape) {
-      hide_modal();
+      tvm.addtask_hide()();
       return true;
     }
     return false;
@@ -115,42 +113,35 @@ int main(int argc, const char *argv[]) {
       ->info("Initialized view model from {}", filepath.string());
   spdlog::get(logger_name)->flush();
 
-  // add task input field state
-  auto addtask_input_shown = false;
-  auto addtask_show_modal = [&] { addtask_input_shown = true; };
-  auto addtask_hide_modal = [&] { addtask_input_shown = false; };
-  auto exit_prog = screen.ExitLoopClosure();
-
   // Instanciate the main and modal components:
-  auto main_component = MainComponent(tvm, addtask_show_modal, exit_prog);
-  auto add_task_component = AddTaskComponent(tvm, addtask_hide_modal);
+  auto main_component = MainComponent(tvm);
+  auto add_task_component = AddTaskComponent(tvm);
 
-  main_component |=
-      CatchEvent([&tvm, &addtask_show_modal, &exit_prog](Event event) {
-        if (event == Event::d) {
-          spdlog::get(logger_name)
-              ->info("Key [d] Deleting selected task {}.",
-                     tvm.get_selected_task_const());
-          tvm.delete_selected_task();
-          return true;
-        }
-        if (event == Event::n) {
-          spdlog::get(logger_name)->info("Key [n] Showing 'add task' modal.");
-          addtask_show_modal();
-          return true;
-        }
-        if (event == Event::q) {
-          spdlog::get(logger_name)->info("Key [q] Quit program requested.");
-          exit_prog();
-          return true;
-        }
-        return false;
-      });
+  main_component |= CatchEvent([&tvm, &screen](Event event) {
+    if (event == Event::d) {
+      spdlog::get(logger_name)
+          ->info("Key [d] Deleting selected task {}.",
+                 tvm.get_selected_task_const());
+      tvm.delete_selected_task();
+      return true;
+    }
+    if (event == Event::n) {
+      spdlog::get(logger_name)->info("Key [n] Showing 'add task' modal.");
+      tvm.addtask_show()();
+      return true;
+    }
+    if (event == Event::q) {
+      spdlog::get(logger_name)->info("Key [q] Quit program requested.");
+      screen.ExitLoopClosure()();
+      return true;
+    }
+    return false;
+  });
 
   // Use the `Modal` function to use together the main component and its modal
   // window. The |modal_shown| boolean controls whether the modal is shown or
   // not.
-  main_component |= Modal(add_task_component, &addtask_input_shown);
+  main_component |= Modal(add_task_component, &tvm.get_addtask_input_shown());
   spdlog::get(logger_name)->debug("Added modal component successfuly.");
 
   screen.Loop(main_component);

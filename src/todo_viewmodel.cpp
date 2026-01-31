@@ -1,7 +1,7 @@
 #include "todo_viewmodel.h"
 #include <algorithm>
+#include <functional>
 #include <iostream>
-#include <ranges>
 #include <sstream>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,9 @@ const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
 const std::int32_t &TodoViewModel::get_selected_task_const() const {
   return selected_task_idx;
 }
+const bool &TodoViewModel::get_addtask_input_shown() const {
+  return addtask_input_shown;
+}
 
 // mutable refs getters
 std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
@@ -48,7 +51,16 @@ std::vector<std::string> &TodoViewModel::get_task_entries() {
   return tasks_entries;
 }
 
-std::int32_t &TodoViewModel::get_seleted_task() { return selected_task_idx; }
+std::int32_t &TodoViewModel::get_selected_task() { return selected_task_idx; }
+
+// callbacks
+
+std::function<void()> TodoViewModel::addtask_show() {
+  return [this] { addtask_input_shown = true; };
+}
+std::function<void()> TodoViewModel::addtask_hide() {
+  return [this] { addtask_input_shown = false; };
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Other
