@@ -83,15 +83,25 @@ Component AddTaskComponent(TodoViewModel &tvm) {
 }
 
 int main(int argc, const char *argv[]) {
-  // BUG: if HOME does not exist, then the program WILL crash
-  // find the user's home directory
-  std::filesystem::path home_dir = std::getenv("HOME");
+  // Safely get home directory - use current directory as fallback
+  std::filesystem::path home_dir;
+  if (auto home_env = std::getenv("HOME"); home_env != nullptr) {
+    home_dir = home_env;
+  } else {
+    home_dir = std::filesystem::current_path();
+  }
 
   // Setup the loggers
   spdlog::set_level(spdlog::level::debug); // Set *global* log level to debug
   try {
-    // TODO: parameterize this path to XDG_STATE_DIR or the like
-    auto log_path = home_dir / ".local/state/task-tracker/log.txt";
+    // Use XDG_STATE_HOME if available, otherwise fallback to $HOME/.local/state
+    std::filesystem::path state_dir;
+    if (auto xdg_state = std::getenv("XDG_STATE_HOME"); xdg_state != nullptr) {
+      state_dir = xdg_state;
+    } else {
+      state_dir = home_dir / ".local/state";
+    }
+    auto log_path = state_dir / "task-tracker/log.txt";
     auto logger = spdlog::basic_logger_mt(logger_name, log_path);
     // flush logs every few seconds
     spdlog::flush_every(std::chrono::seconds(3));
@@ -104,7 +114,6 @@ int main(int argc, const char *argv[]) {
   auto screen = ScreenInteractive::Fullscreen();
   spdlog::get(logger_name)->debug("Initialized screen sucessfully.");
 
-  // TODO: add this shared routine to a util file
   // create the todo list under home if possible
   std::string filename = "todo.json";
   std::filesystem::path filepath = home_dir / filename;
