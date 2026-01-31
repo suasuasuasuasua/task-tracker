@@ -1,12 +1,5 @@
 # Task Tracker in C++
 
-My implementation of the task tracker in C++-20. I _slightly_ cheated by using
-the json third-party library, but I figure that the point of the exercise is not
-to write a json parser, but to write a task tracker. Anyway, the json library is
-industry standard, so it's not bad to get familiar with.
-
-> Project link [found here](https://github.com/suasuasuasuasua/roadmap.sh/cplusplus/task-tracker)
-
 ## Build
 
 Currently, task-tracker is building against these dependencies. See `shell.nix`
@@ -20,18 +13,30 @@ make==4.4.1
 ninja==1.13.1
 ```
 
-See the `Makefile` for more recipes on building.
+See the `Makefile` for more targets. Of note, you can change the
+`CMAKE_BUILD_TYPE` to something other than Release if you need debug symbols or
+whatnot.
 
 ```bash
 make build
-./build/task-cli help
+./build/bin/task-tui
 ```
 
 Or use `nix` to build.
 
 ```bash
 nix build
-./result/bin/task-cli help
+./result/bin/task-tui
+```
+
+## Installing
+
+The task-tracker can be installed using the `Makefile`. The install prefix can
+be changed to a local directory in case you don't have `sudo` access.
+
+```bash
+# by default, installs to /usr/local/bin which requires sudo access
+make install CMAKE_INSTALL_PREFIX=~/.local
 ```
 
 ## Usage
@@ -39,40 +44,25 @@ nix build
 The `todo.json` file is stored under `$HOME/todo.json` by default for ease of
 access. Or, if home is not accessible, it is stored under the local directory.
 
-See all the commands.
-
 ```bash
-./task-cli
-./task-cli help
+./task-tui
 ```
 
-Add, modify, and delete
+Or, you can build or run with `nix` directly.
 
 ```bash
-./task-cli add UID "SHORT DESC"
-./task-cli modify UID "SHORT DESC"
-./task-cli delete UID
+#
+nix build git@github.com/suasuasuasuasua/task-tracker
+./result/bin/task-tui
 
-./task-cli mark-in-progress UID
-./task-cli mark-done UID
+nix run git@github.com/suasuasuasuasua/task-tracker
 ```
 
-List all tasks.
+## Archive
 
-```bash
-./task-cli list
-./task-cli list todo
-./task-cli list in-progress
-./task-cli list done
-```
+My implementation of the task tracker in C++-20. I _slightly_ cheated by using
+the json third-party library, but I figure that the point of the exercise is not
+to write a json parser, but to write a task tracker. Anyway, the json library is
+industry standard, so it's not bad to get familiar with.
 
-Run with `nix` directly. This method is slightly slower.
-
-```bash
-nix run \
-    "git+ssh://git@github.com/suasuasuasuasua/roadmap.sh?ref=main&dir=cplusplus/task-tracker"
-```
-
-## Future Work
-
-- Add option to save in different places
+> Project link [found here](https://github.com/suasuasuasuasua/roadmap.sh/cplusplus/task-tracker)
