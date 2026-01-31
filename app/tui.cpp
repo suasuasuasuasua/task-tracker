@@ -2,10 +2,10 @@
 // Use of this source code is governed by the MIT license that can be found in
 // the LICENSE file.
 #include <filesystem>
+#include <format>
 #include <ftxui/component/component_options.hpp> // for ButtonOption
 #include <ftxui/component/mouse.hpp>             // for ftxui
 #include <functional>                            // for function
-#include <sstream>
 
 #include "todo_viewmodel.h"
 
@@ -18,65 +18,68 @@ using namespace ftxui;
 auto button_style = ButtonOption::Simple();
 
 // Definition of the main component. The details are not important.
-Component MainComponent(TodoViewModel &tvm, std::function<void()> show_modal,
+Component MainComponent(TodoViewModel &tvm,
+                        std::function<void()> addtask_show_modal,
                         std::function<void()> exit) {
+  // define the menulist of task items
+  // the entries are defined via const reference, and the index is a mutable ref
+  auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_seleted_task());
+
   auto component = Container::Vertical({
-      Button("Add Task", show_modal, button_style),
+      Button("Add Task", addtask_show_modal, button_style),
+      tasklist,
       Button("Quit", exit, button_style),
   });
+
   // Polish how the two buttons are rendered:
   component |= Renderer([&](Element inner) {
-    auto tasks = tvm.get_tasks();
-    Elements task_elements;
-    std::stringstream ss;
-    for (const auto &t : tasks) {
-      ss.str(std::string());
-      ss << t;
-      task_elements.emplace_back(text(ss.str()));
-    }
-
+    auto idx = tvm.get_selected_task_const();
     auto comp = vbox({
-        text("Main component"),
         separator(),
         inner,
         separator(),
-        hbox({
-            text("Current text: "),
-            text(tvm.get_input_text_const()),
-        }),
-        separator(),
-        vbox(task_elements),
+        text(std::format("Current selected text: {}",
+                         tvm.get_task_entries().at(idx))),
+        text(std::format("Current selected input: {}", idx)),
     });
 
     return window(text("Task Tracker"), comp);
   });
+
   return component;
 }
 
 // Definition of the modal component. The details are not important.
-Component ModalComponent(std::string &text_data,
-                         std::function<void()> do_nothing,
-                         std::function<void()> hide_modal) {
+Component AddTaskComponent(TodoViewModel &tvm,
+                           std::function<void()> hide_modal) {
 
   auto input_options = InputOption::Spacious();
   input_options.multiline = false;
+  input_options.on_enter = [&tvm] { tvm.add_task(); };
 
-  auto text_field = Input(&text_data, "Enter a task!", input_options);
+  auto text_field =
+      Input(&tvm.get_input_text(), "Enter a task!", input_options);
 
   auto component = Container::Vertical({
       text_field,
-      Button("Do nothing", do_nothing, button_style),
-      Button("Quit modal", hide_modal, button_style),
+      Button("Quit", hide_modal, button_style),
   });
   // Polish how the two buttons are rendered:
   component |= Renderer([&](Element inner) {
     return vbox({
-               text("Modal component "),
+               text("Enter the task"),
                separator(),
                inner,
-           })                              //.
-           | size(WIDTH, GREATER_THAN, 30) //
-           | border;                       //
+           }) |
+           size(WIDTH, GREATER_THAN, 80) | border;
+  });
+
+  component |= CatchEvent([&hide_modal](Event event) {
+    if (event == Event::Escape) {
+      hide_modal();
+      return true;
+    }
+    return false;
   });
 
   return component;
@@ -85,7 +88,7 @@ Component ModalComponent(std::string &text_data,
 int main(int argc, const char *argv[]) {
   auto screen = ScreenInteractive::Fullscreen();
 
-  // TODO: add this routine to a util file
+  // TODO: add this shared routine to a util file
   std::string filename = "todo.json";
   std::filesystem::path filepath = filename;
   // create the todo list under home if possible
@@ -95,23 +98,35 @@ int main(int argc, const char *argv[]) {
   TodoViewModel tvm(filepath);
 
   // State of the application:
-  bool task_input_shown = false;
+  auto addtask_input_shown = false;
 
   // Some actions modifying the state:
-  auto show_modal = [&] { task_input_shown = true; };
-  auto hide_modal = [&] { task_input_shown = false; };
-  auto exit = screen.ExitLoopClosure();
-  auto do_nothing = [&] {};
+  auto addtask_show_modal = [&] { addtask_input_shown = true; };
+  auto addtask_hide_modal = [&] { addtask_input_shown = false; };
+  auto exit_prog = screen.ExitLoopClosure();
 
   // Instanciate the main and modal components:
-  auto main_component = MainComponent(tvm, show_modal, exit);
-  auto modal_component =
-      ModalComponent(tvm.get_input_text(), do_nothing, hide_modal);
+  auto main_component = MainComponent(tvm, addtask_show_modal, exit_prog);
+  auto add_task_component = AddTaskComponent(tvm, addtask_hide_modal);
 
   // Use the `Modal` function to use together the main component and its modal
   // window. The |modal_shown| boolean controls whether the modal is shown or
   // not.
-  main_component |= Modal(modal_component, &task_input_shown);
+  main_component |= Modal(add_task_component, &addtask_input_shown);
+
+  // // TODO: catch being intercepted by modals
+  // main_component |= CatchEvent([&addtask_show_modal, &exit_prog](Event event)
+  // {
+  //   if (event == Event::n) {
+  //     addtask_show_modal();
+  //     return true;
+  //   }
+  //   if (event == Event::q) {
+  //     exit_prog();
+  //     return true;
+  //   }
+  //   return false;
+  // });
 
   screen.Loop(main_component);
   return 0;
