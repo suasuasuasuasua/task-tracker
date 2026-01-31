@@ -31,16 +31,17 @@ Component MainComponent(TodoViewModel &tvm,
 
   // Polish how the two buttons are rendered:
   component |= Renderer([&](Element inner) {
-    auto idx = tvm.get_selected_task_const();
-    Elements eles = {inner, separator()};
+    Elements elems = {inner, separator()};
 
     if (not tvm.get_tasks().empty()) {
-      eles.emplace_back(text(std::format("Current selected text: {}",
-                                         tvm.get_task_entries().at(idx))));
-      eles.emplace_back(text(std::format("Current selected input: {}", idx)));
+      auto entries = tvm.get_task_entries_const();
+      auto idx = tvm.get_selected_task_const();
+      elems.emplace_back(
+          text(std::format("Current selected text: {}", entries.at(idx))));
+      elems.emplace_back(text(std::format("Current selected input: {}", idx)));
     }
 
-    return window(text("Task Tracker") | bold | center, vbox(eles));
+    return window(text("Task Tracker") | bold | center, vbox(elems));
   });
 
   return component;
