@@ -83,11 +83,15 @@ Component AddTaskComponent(TodoViewModel &tvm) {
 }
 
 int main(int argc, const char *argv[]) {
+  // find the user's home directory
+  std::filesystem::path home_dir = std::getenv("HOME");
+
   // Setup the loggers
   spdlog::set_level(spdlog::level::debug); // Set *global* log level to debug
   try {
-    // TODO: parameaterize this path to XDG_STATE_DIR or the like
-    auto logger = spdlog::basic_logger_mt(logger_name, "logs/basic-log.txt");
+    // TODO: parameterize this path to XDG_STATE_DIR or the like
+    auto log_path = home_dir / ".local/state/task-tracker/log.txt";
+    auto logger = spdlog::basic_logger_mt(logger_name, log_path);
     // flush logs every few seconds
     spdlog::flush_every(std::chrono::seconds(3));
   } catch (const spdlog::spdlog_ex &ex) {
@@ -100,12 +104,9 @@ int main(int argc, const char *argv[]) {
   spdlog::get(logger_name)->debug("Initialized screen sucessfully.");
 
   // TODO: add this shared routine to a util file
-  std::string filename = "todo.json";
-  std::filesystem::path filepath = filename;
   // create the todo list under home if possible
-  if (auto home_dir = std::getenv("HOME"); home_dir != nullptr) {
-    filepath = filepath / home_dir / filename;
-  }
+  std::string filename = "todo.json";
+  std::filesystem::path filepath = home_dir / filename;
   spdlog::get(logger_name)->info("Reading from {}", filepath.string());
 
   // Create the view model that will mediate data between the models and views
