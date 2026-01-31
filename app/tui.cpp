@@ -83,15 +83,22 @@ Component AddTaskComponent(TodoViewModel &tvm) {
 }
 
 int main(int argc, const char *argv[]) {
-  // BUG: if HOME does not exist, then the program WILL crash
-  // find the user's home directory
-  std::filesystem::path home_dir = std::getenv("HOME");
+  // Find the user's home directory
+  std::filesystem::path home_dir;
+  if (auto home_env = std::getenv("HOME"); home_env != nullptr) {
+    home_dir = home_env;
+  } else {
+    // Fallback to current directory if HOME is not set
+    home_dir = std::filesystem::current_path();
+  }
 
   // Setup the loggers
   spdlog::set_level(spdlog::level::debug); // Set *global* log level to debug
   try {
     // TODO: parameterize this path to XDG_STATE_DIR or the like
-    auto log_path = home_dir / ".local/state/task-tracker/log.txt";
+    auto log_dir = home_dir / ".local/state/task-tracker";
+    std::filesystem::create_directories(log_dir);
+    auto log_path = log_dir / "log.txt";
     auto logger = spdlog::basic_logger_mt(logger_name, log_path);
     // flush logs every few seconds
     spdlog::flush_every(std::chrono::seconds(3));

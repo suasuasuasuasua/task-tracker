@@ -1,5 +1,4 @@
-#ifndef INCLUDE_INC_TODO_VIEWMODEL_H_
-#define INCLUDE_INC_TODO_VIEWMODEL_H_
+#pragma once
 
 #include "todo.h"
 #include <cstdint>
@@ -61,5 +60,3 @@ private:
   void refresh_tasks();
   bool is_selected_task_valid();
 };
-
-#endif // INCLUDE_INC_TODO_VIEWMODEL_H_

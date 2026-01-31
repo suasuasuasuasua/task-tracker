@@ -46,17 +46,38 @@ void TodoTracker::from_json(const std::filesystem::path &filepath) {
     return;
   }
 
-  std::ifstream fin(filepath);
-  json data = json::parse(fin);
+  try {
+    std::ifstream fin(filepath);
+    if (!fin.is_open()) {
+      std::cerr << "Error: Could not open file " << filepath << "\n";
+      return;
+    }
 
-  *this = deserialize(data);
+    json data = json::parse(fin);
+    *this = deserialize(data);
+  } catch (const json::parse_error &e) {
+    std::cerr << "JSON parse error in " << filepath << ": " << e.what() << "\n";
+  } catch (const std::exception &e) {
+    std::cerr << "Error loading tasks from " << filepath << ": " << e.what()
+              << "\n";
+  }
 }
 
 void TodoTracker::to_json(const std::filesystem::path &filepath) {
-  std::ofstream ofs(filepath);
+  try {
+    std::ofstream ofs(filepath);
+    if (!ofs.is_open()) {
+      std::cerr << "Error: Could not open file " << filepath
+                << " for writing\n";
+      return;
+    }
 
-  json data = serialize();
-  ofs << std::setw(2) << data;
+    json data = serialize();
+    ofs << std::setw(2) << data;
+  } catch (const std::exception &e) {
+    std::cerr << "Error saving tasks to " << filepath << ": " << e.what()
+              << "\n";
+  }
 }
 
 std::uint32_t TodoTracker::add_task(const std::string &desc) {

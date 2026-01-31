@@ -1,5 +1,4 @@
-#ifndef INCLUDE_INC_TASK_H_
-#define INCLUDE_INC_TASK_H_
+#pragma once
 
 #include <chrono>
 #include <cstdint>
@@ -66,5 +65,3 @@ private:
   std::chrono::time_point<std::chrono::system_clock> creation_date;
   std::chrono::time_point<std::chrono::system_clock> updated_date;
 };
-
-#endif // INCLUDE_INC_TASK_H_

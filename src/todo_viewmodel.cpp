@@ -18,7 +18,7 @@ void TodoViewModel::add_task() {
     return;
   }
 
-  auto uid = model.add_task(task_text);
+  model.add_task(task_text);
   input_text.clear();
 
   refresh_tasks();

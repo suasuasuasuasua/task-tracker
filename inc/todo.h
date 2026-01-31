@@ -1,5 +1,4 @@
-#ifndef INCLUDE_INC_TODO_H_
-#define INCLUDE_INC_TODO_H_
+#pragma once
 
 #include <cstdint>
 #include <map>
@@ -31,5 +30,3 @@ public:
 private:
   std::map<std::uint32_t, Task> tasks;
 };
-
-#endif // INCLUDE_INC_TODO_H_
