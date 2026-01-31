@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 json TodoTracker::serialize() const {
   json data;
@@ -14,7 +13,7 @@ json TodoTracker::serialize() const {
       {"tasks", json::array()},
   };
 
-  for (const auto &t : tasks) {
+  for (const auto &t : tasks | std::views::values) {
     data["tasks"].emplace_back(t.serialize());
   }
 
@@ -24,9 +23,10 @@ json TodoTracker::serialize() const {
 TodoTracker TodoTracker::deserialize(const json &data) {
   TodoTracker t;
 
-  std::list<Task> tasks;
+  std::map<std::uint32_t, Task> tasks;
   for (const auto &[k, v] : data["tasks"].items()) {
-    tasks.emplace_back(Task::deserialize(v));
+    auto uid = static_cast<std::uint32_t>(v["uid"]);
+    tasks.emplace(uid, Task::deserialize(v));
   }
 
   t.setTasks(tasks);
@@ -34,9 +34,9 @@ TodoTracker TodoTracker::deserialize(const json &data) {
   return t;
 }
 
-std::list<Task> TodoTracker::getTasks() const { return tasks; }
+std::map<std::uint32_t, Task> TodoTracker::getTasks() const { return tasks; }
 
-void TodoTracker::setTasks(const std::list<Task> &tasks) {
+void TodoTracker::setTasks(const std::map<std::uint32_t, Task> &tasks) {
   this->tasks = tasks;
 }
 
@@ -61,76 +61,70 @@ void TodoTracker::to_json(const std::filesystem::path &filepath) {
 
 std::uint32_t TodoTracker::add_task(const std::string &desc) {
   std::uint32_t next_id = 0;
-  if (not tasks.empty()) {
-    std::vector<std::uint32_t> ids(tasks.size());
-    std::transform(tasks.begin(), tasks.end(), ids.begin(),
-                   [](const auto &t) { return t.getUid(); });
 
-    for (const auto &id : ids) {
-      auto lid = std::min(id - 1, 0u);
-      auto rid = id + 1;
+  for (const auto &id : tasks | std::views::keys) {
+    auto lid = std::min(id - 1, 0u);
+    auto rid = id + 1;
 
-      if (std::find(ids.begin(), ids.end(), lid) == ids.end()) {
-        next_id = lid;
-        break;
-      } else if (std::find(ids.begin(), ids.end(), rid) == ids.end()) {
-        next_id = rid;
-        break;
-      }
+    if (not tasks.contains(lid)) {
+      next_id = lid;
+      break;
+    } else if (not tasks.contains(rid)) {
+      next_id = rid;
+      break;
     }
   }
 
-  tasks.emplace_back(next_id, desc);
+  tasks.emplace(next_id, Task(next_id, desc));
 
   return next_id;
 }
 
 void TodoTracker::list_tasks(Task::Status status, bool filter) const {
   for (const auto &t :
-       tasks | std::ranges::views::filter([&status, filter](const Task &t) {
-         // short circut: if there is no filter, then accept list all tasks
-         // else, if there is a filter, then check if it's the correct status
-         return (not filter) or t.getStatus() == status;
-       })) {
+       tasks
+           // grab the tasks (values) from the map
+           | std::views::values
+           // filter tasks for the status
+           | std::ranges::views::filter([&status, filter](const Task &t) {
+               // short circut: if there is no filter, then accept list all
+               // tasks else, if there is a filter, then check if it's the
+               // correct status
+               return (not filter) or t.getStatus() == status;
+             })) {
     std::cout << t << "\n";
   }
 }
 
 void TodoTracker::mark_task(std::uint32_t uid, Task::Status status) {
-  auto task_itr =
-      std::find_if(tasks.begin(), tasks.end(),
-                   [uid](const auto &t) { return t.getUid() == uid; });
+  auto task_itr = tasks.find(uid);
 
   if (task_itr == tasks.end()) {
     std::cout << "Could not find task id: " << uid << "\n";
     return;
   }
 
-  task_itr->setStatus(status);
-  task_itr->setUpdatedDate(std::chrono::system_clock::now());
+  task_itr->second.setStatus(status);
+  task_itr->second.setUpdatedDate(std::chrono::system_clock::now());
 }
 
 void TodoTracker::update_task(std::uint32_t uid, const std::string &desc) {
-  auto task_itr =
-      std::find_if(tasks.begin(), tasks.end(),
-                   [uid](const auto &t) { return t.getUid() == uid; });
+  auto task_itr = tasks.find(uid);
 
   if (task_itr == tasks.end()) {
     std::cout << "Could not find task id: " << uid << "\n";
     return;
   }
 
-  task_itr->setDesc(desc);
-  task_itr->setUpdatedDate(std::chrono::system_clock::now());
+  task_itr->second.setDesc(desc);
+  task_itr->second.setUpdatedDate(std::chrono::system_clock::now());
 }
 
 void TodoTracker::delete_task(std::uint32_t uid) {
-  // NOTE: legacy erasure idiom
-  // tasks.erase(std::find_if(tasks.begin(), tasks.end(),
-  //                          [uid](const auto& t) { return t.getUid() == uid;
-  //                          }));
   auto n =
-      std::erase_if(tasks, [uid](const auto &t) { return t.getUid() == uid; });
+      std::erase_if(tasks, [uid](const std::pair<std::uint32_t, Task> &item) {
+        return item.first == uid;
+      });
 
-  std::cout << n << " items deletd\n";
+  std::cout << n << " items deleted\n";
 }

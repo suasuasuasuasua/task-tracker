@@ -55,7 +55,7 @@ void TodoViewModel::refresh_tasks() {
 
   std::stringstream ss;
   auto tasks = model.getTasks();
-  for (const auto &t : tasks) {
+  for (const auto &t : tasks | std::views::values) {
     ss << t;
     filtered_tasks.push_back(t);
     // TODO: format the strings nicer?
