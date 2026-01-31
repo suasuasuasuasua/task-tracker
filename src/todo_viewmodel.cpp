@@ -1,4 +1,5 @@
 #include "todo_viewmodel.h"
+#include "task.h"
 #include <algorithm>
 #include <functional>
 #include <iostream>
@@ -8,8 +9,8 @@
 // Model logic
 void TodoViewModel::add_task() {
   auto task_text = input_text;
-  // task_text.erase(0, task_text.find_first_not_of(" \t\n\r"));
-  // task_text.erase(task_text.find_last_not_of(" \t\n\r") + 1);
+  task_text.erase(0, task_text.find_first_not_of(" \t\n\r"));
+  task_text.erase(task_text.find_last_not_of(" \t\n\r") + 1);
 
   if (task_text.empty()) {
     // TODO: add status bar logic
@@ -24,13 +25,7 @@ void TodoViewModel::add_task() {
 }
 
 void TodoViewModel::delete_selected_task() {
-  // no task to delete
-  if (filtered_tasks.empty()) {
-    return;
-  }
-
-  // bounds checking for index
-  if (selected_task_idx < 0 || selected_task_idx >= filtered_tasks.size()) {
+  if (filtered_tasks.empty() or not is_selected_task_valid()) {
     return;
   }
 
@@ -45,25 +40,16 @@ void TodoViewModel::delete_selected_task() {
                  static_cast<std::int32_t>(filtered_tasks.size() - 1));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Private helpers
-void TodoViewModel::refresh_tasks() {
-  filtered_tasks.clear();
-  tasks_entries.clear();
-
-  // TODO: add filtering logic
-
-  std::stringstream ss;
-  auto tasks = model.getTasks();
-  for (const auto &t : tasks | std::views::values) {
-    ss << t;
-    filtered_tasks.push_back(t);
-    // TODO: format the strings nicer?
-    tasks_entries.emplace_back(ss.str());
-
-    ss.str(std::string()); // clear the stringstream
+void TodoViewModel::mark_task(Task::Status status) {
+  if (filtered_tasks.empty() or not is_selected_task_valid()) {
+    return;
   }
+
+  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  model.mark_task(uid, status);
+  refresh_tasks();
 }
+
 //////////////////////////////////////////////////////////////////////////////
 // ViewModel logic
 
@@ -103,4 +89,28 @@ std::function<void()> TodoViewModel::addtask_show() {
 }
 std::function<void()> TodoViewModel::addtask_hide() {
   return [this] { addtask_input_shown = false; };
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Private helpers
+void TodoViewModel::refresh_tasks() {
+  filtered_tasks.clear();
+  tasks_entries.clear();
+
+  // TODO: add filtering logic
+
+  std::stringstream ss;
+  auto tasks = model.getTasks();
+  for (const auto &t : tasks | std::views::values) {
+    ss << t;
+    filtered_tasks.push_back(t);
+    // TODO: format the strings nicer?
+    tasks_entries.emplace_back(ss.str());
+
+    ss.str(std::string()); // clear the stringstream
+  }
+}
+
+bool TodoViewModel::is_selected_task_valid() {
+  return 0 <= selected_task_idx && selected_task_idx < filtered_tasks.size();
 }

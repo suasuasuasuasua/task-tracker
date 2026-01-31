@@ -9,7 +9,7 @@
 class TodoViewModel {
 public:
   TodoViewModel(const std::filesystem::path filepath)
-      : filepath(filepath), addtask_input_shown(false) {
+      : filepath(filepath), addtask_input_shown(false), selected_task_idx(0U) {
     model.from_json(filepath);
 
     // initialize the tasks and task entries
@@ -22,6 +22,7 @@ public:
   // Model logic
   void add_task();
   void delete_selected_task();
+  void mark_task(Task::Status status);
 
   //////////////////////////////////////////////////////////////////////////////
   // ViewModel logic
@@ -58,6 +59,7 @@ private:
 
   // helpers
   void refresh_tasks();
+  bool is_selected_task_valid();
 };
 
 #endif // INCLUDE_INC_TODO_VIEWMODEL_H_
