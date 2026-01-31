@@ -1,0 +1,7 @@
+add_test([=[TaskTest.Create]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_task [==[--gtest_filter=TaskTest.Create]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TaskTest.Create]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[TaskTest.Serialize]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_task [==[--gtest_filter=TaskTest.Serialize]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TaskTest.Serialize]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[TaskTest.Deserialize]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_task [==[--gtest_filter=TaskTest.Deserialize]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TaskTest.Deserialize]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  test_task_TESTS TaskTest.Create TaskTest.Serialize TaskTest.Deserialize)
