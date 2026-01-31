@@ -79,17 +79,19 @@ update_version_in_files() {
     
     # Update CMakeLists.txt
     read -r major minor patch <<< "$(parse_version "$new_version")"
-    sed -i "s/^set(TaskTracker_Version_Major .*)$/set(TaskTracker_Version_Major $major)/" "$ROOT_DIR/CMakeLists.txt"
-    sed -i "s/^set(TaskTracker_Version_Minor .*)$/set(TaskTracker_Version_Minor $minor)/" "$ROOT_DIR/CMakeLists.txt"
-    sed -i "s/^set(TaskTracker_Version_Patch .*)$/set(TaskTracker_Version_Patch $patch)/" "$ROOT_DIR/CMakeLists.txt"
+    # Use temporary file for cross-platform sed compatibility
+    sed "s/^set(TaskTracker_Version_Major .*)$/set(TaskTracker_Version_Major $major)/" "$ROOT_DIR/CMakeLists.txt" > "$ROOT_DIR/CMakeLists.txt.tmp" && mv "$ROOT_DIR/CMakeLists.txt.tmp" "$ROOT_DIR/CMakeLists.txt"
+    sed "s/^set(TaskTracker_Version_Minor .*)$/set(TaskTracker_Version_Minor $minor)/" "$ROOT_DIR/CMakeLists.txt" > "$ROOT_DIR/CMakeLists.txt.tmp" && mv "$ROOT_DIR/CMakeLists.txt.tmp" "$ROOT_DIR/CMakeLists.txt"
+    sed "s/^set(TaskTracker_Version_Patch .*)$/set(TaskTracker_Version_Patch $patch)/" "$ROOT_DIR/CMakeLists.txt" > "$ROOT_DIR/CMakeLists.txt.tmp" && mv "$ROOT_DIR/CMakeLists.txt.tmp" "$ROOT_DIR/CMakeLists.txt"
     echo -e "${GREEN}✓ Updated CMakeLists.txt${NC}"
     
-    # Update flake.nix
-    sed -i "s/version = \".*\";/version = \"$new_version\";/" "$ROOT_DIR/flake.nix"
+    # Update flake.nix - more specific pattern targeting pname line context
+    sed "s/^\([ ]*pname = \"task-cli\";\)$/\1/" "$ROOT_DIR/flake.nix" > "$ROOT_DIR/flake.nix.tmp" && mv "$ROOT_DIR/flake.nix.tmp" "$ROOT_DIR/flake.nix"
+    sed "s/^[ ]*version = \".*\";/          version = \"$new_version\";/" "$ROOT_DIR/flake.nix" > "$ROOT_DIR/flake.nix.tmp" && mv "$ROOT_DIR/flake.nix.tmp" "$ROOT_DIR/flake.nix"
     echo -e "${GREEN}✓ Updated flake.nix${NC}"
     
     # Update .cz.yaml
-    sed -i "s/version: .*/version: $new_version/" "$ROOT_DIR/.cz.yaml"
+    sed "s/^  version: .*/  version: $new_version/" "$ROOT_DIR/.cz.yaml" > "$ROOT_DIR/.cz.yaml.tmp" && mv "$ROOT_DIR/.cz.yaml.tmp" "$ROOT_DIR/.cz.yaml"
     echo -e "${GREEN}✓ Updated .cz.yaml${NC}"
 }
 
