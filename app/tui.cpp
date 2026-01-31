@@ -83,6 +83,7 @@ Component AddTaskComponent(TodoViewModel &tvm) {
 }
 
 int main(int argc, const char *argv[]) {
+  // BUG: if HOME does not exist, then the program WILL crash
   // find the user's home directory
   std::filesystem::path home_dir = std::getenv("HOME");
 
