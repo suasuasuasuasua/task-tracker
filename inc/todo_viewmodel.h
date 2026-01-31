@@ -20,8 +20,8 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
   // Model logic
-  // setters
   void add_task();
+  void delete_selected_task();
 
   //////////////////////////////////////////////////////////////////////////////
   // ViewModel logic
@@ -37,12 +37,11 @@ public:
   std::vector<std::string> &get_task_entries();
   std::int32_t &get_selected_task();
 
+  //////////////////////////////////////////////////////////////////////////////
+  // View logic
   // callbacks (closures)
   std::function<void()> addtask_show();
   std::function<void()> addtask_hide();
-
-  // other
-  void delete_selected_task();
 
 private:
   // model data (data structures)

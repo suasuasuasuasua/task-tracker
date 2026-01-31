@@ -23,47 +23,6 @@ void TodoViewModel::add_task() {
   refresh_tasks();
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// ViewModel logic
-
-// non-mutable refs getters
-const std::string &TodoViewModel::get_input_text_const() const {
-  return input_text;
-}
-
-const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
-  return tasks_entries;
-}
-
-const std::int32_t &TodoViewModel::get_selected_task_const() const {
-  return selected_task_idx;
-}
-const bool &TodoViewModel::get_addtask_input_shown() const {
-  return addtask_input_shown;
-}
-
-// mutable refs getters
-std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
-
-std::string &TodoViewModel::get_input_text() { return input_text; }
-
-std::vector<std::string> &TodoViewModel::get_task_entries() {
-  return tasks_entries;
-}
-
-std::int32_t &TodoViewModel::get_selected_task() { return selected_task_idx; }
-
-// callbacks
-
-std::function<void()> TodoViewModel::addtask_show() {
-  return [this] { addtask_input_shown = true; };
-}
-std::function<void()> TodoViewModel::addtask_hide() {
-  return [this] { addtask_input_shown = false; };
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Other
 void TodoViewModel::delete_selected_task() {
   // no task to delete
   if (filtered_tasks.empty()) {
@@ -104,4 +63,44 @@ void TodoViewModel::refresh_tasks() {
 
     ss.str(std::string()); // clear the stringstream
   }
+}
+//////////////////////////////////////////////////////////////////////////////
+// ViewModel logic
+
+// non-mutable refs getters
+const std::string &TodoViewModel::get_input_text_const() const {
+  return input_text;
+}
+
+const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
+  return tasks_entries;
+}
+
+const std::int32_t &TodoViewModel::get_selected_task_const() const {
+  return selected_task_idx;
+}
+const bool &TodoViewModel::get_addtask_input_shown() const {
+  return addtask_input_shown;
+}
+
+// mutable refs getters
+std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
+
+std::string &TodoViewModel::get_input_text() { return input_text; }
+
+std::vector<std::string> &TodoViewModel::get_task_entries() {
+  return tasks_entries;
+}
+
+std::int32_t &TodoViewModel::get_selected_task() { return selected_task_idx; }
+
+//////////////////////////////////////////////////////////////////////////////
+// View logic
+// callbacks
+
+std::function<void()> TodoViewModel::addtask_show() {
+  return [this] { addtask_input_shown = true; };
+}
+std::function<void()> TodoViewModel::addtask_hide() {
+  return [this] { addtask_input_shown = false; };
 }
