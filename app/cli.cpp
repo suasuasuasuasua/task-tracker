@@ -45,24 +45,43 @@ int main(int argc, char *argv[]) {
     std::cout << help_str;
   } else if (subcommand == "add" and rest.size() == 1) {
     auto desc = rest.front();
+    if (desc.empty()) {
+      std::cerr << "Error: Task description cannot be empty\n";
+      return 1;
+    }
     auto uid = todolist.add_task(desc);
 
     std::cout << "Task added successfully (ID: " << uid << ")\n";
   } else if (subcommand == "update" and rest.size() == 2) {
-    std::uint32_t uid = std::stoi(rest.at(0));
-    std::string desc = rest.at(1);
+    try {
+      std::uint32_t uid = std::stoul(rest.at(0));
+      std::string desc = rest.at(1);
+      if (desc.empty()) {
+        std::cerr << "Error: Task description cannot be empty\n";
+        return 1;
+      }
 
-    todolist.update_task(uid, desc);
-    std::cout << "Task updated successfully (ID: " << uid << ")\n";
+      todolist.update_task(uid, desc);
+      std::cout << "Task updated successfully (ID: " << uid << ")\n";
+    } catch (const std::exception &e) {
+      std::cerr << "Error: Invalid task ID\n";
+      return 1;
+    }
   } else if (subcommand == "delete" and rest.size() == 1) {
-    std::uint32_t uid = std::stoi(rest.front());
+    try {
+      std::uint32_t uid = std::stoul(rest.front());
 
-    todolist.delete_task(uid);
-    std::cout << "Task deleted successfully (ID: " << uid << ")\n";
+      todolist.delete_task(uid);
+      std::cout << "Task deleted successfully (ID: " << uid << ")\n";
+    } catch (const std::exception &e) {
+      std::cerr << "Error: Invalid task ID\n";
+      return 1;
+    }
   } else if (subcommand.find("mark") != std::string::npos and
              rest.size() == 1) {
-    std::uint32_t uid = std::stoi(rest.front());
-    Task::Status status;
+    try {
+      std::uint32_t uid = std::stoul(rest.front());
+      Task::Status status;
 
     if (subcommand == "mark-in-progress") {
       status = Task::Status::InProgress;
@@ -75,6 +94,10 @@ int main(int argc, char *argv[]) {
 
     todolist.mark_task(uid, status);
     std::cout << "Task status updated successfully (ID: " << uid << ")\n";
+    } catch (const std::exception &e) {
+      std::cerr << "Error: Invalid task ID\n";
+      return 1;
+    }
   } else if (subcommand == "list") {
     switch (rest.size()) {
     // print all the tasks

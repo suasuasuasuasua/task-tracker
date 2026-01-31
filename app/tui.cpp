@@ -105,11 +105,11 @@ int main(int argc, const char *argv[]) {
   } catch (const spdlog::spdlog_ex &ex) {
     std::cerr << "Log init failed: " << ex.what() << std::endl;
   }
-  spdlog::get(logger_name)->debug("Initialized logger sucessfully.");
+  spdlog::get(logger_name)->debug("Initialized logger successfully.");
 
   // Setup the screen
   auto screen = ScreenInteractive::Fullscreen();
-  spdlog::get(logger_name)->debug("Initialized screen sucessfully.");
+  spdlog::get(logger_name)->debug("Initialized screen successfully.");
 
   // TODO: add this shared routine to a util file
   // create the todo list under home if possible

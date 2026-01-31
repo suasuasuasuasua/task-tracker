@@ -83,17 +83,19 @@ void TodoTracker::to_json(const std::filesystem::path &filepath) {
 std::uint32_t TodoTracker::add_task(const std::string &desc) {
   std::uint32_t next_id = 0;
 
-  for (const auto &id : tasks | std::views::keys) {
-    auto lid = std::min(id - 1, 0u);
-    auto rid = id + 1;
+  // If no tasks exist, use ID 0
+  if (tasks.empty()) {
+    tasks.emplace(next_id, Task(next_id, desc));
+    return next_id;
+  }
 
-    if (not tasks.contains(lid)) {
-      next_id = lid;
-      break;
-    } else if (not tasks.contains(rid)) {
-      next_id = rid;
+  // Find the first available ID
+  for (const auto &id : tasks | std::views::keys) {
+    if (id > next_id) {
+      // Found a gap, use the next_id
       break;
     }
+    next_id = id + 1;
   }
 
   tasks.emplace(next_id, Task(next_id, desc));
