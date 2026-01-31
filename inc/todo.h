@@ -2,7 +2,7 @@
 #define INCLUDE_INC_TODO_H_
 
 #include <cstdint>
-#include <list>
+#include <map>
 #include <nlohmann/json.hpp>
 
 #include "task.h"
@@ -16,8 +16,8 @@ public:
   json serialize() const;
   static TodoTracker deserialize(const json &data);
 
-  std::list<Task> getTasks() const;
-  void setTasks(const std::list<Task> &tasks);
+  std::map<std::uint32_t, Task> getTasks() const;
+  void setTasks(const std::map<std::uint32_t, Task> &tasks);
 
   void from_json(const std::filesystem::path &filepath);
   void to_json(const std::filesystem::path &filepath);
@@ -29,7 +29,7 @@ public:
   void delete_task(std::uint32_t uid);
 
 private:
-  std::list<Task> tasks;
+  std::map<std::uint32_t, Task> tasks;
 };
 
 #endif // INCLUDE_INC_TODO_H_

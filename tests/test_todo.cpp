@@ -1,9 +1,10 @@
 #include <chrono>
-#include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
+#include <utility>
 
+#include "nlohmann/json.hpp"
 #include "task.h"
 #include "todo.h"
+#include "gtest/gtest.h"
 
 using json = nlohmann::json;
 
@@ -23,9 +24,10 @@ TEST(TodoTrackerTest, isEmpty) {
 TEST(TodoTrackerTest, Serialize) {
   TodoTracker todolist;
   auto time = std::chrono::system_clock::now();
-  Task t0 = Task(0, "Do the laundry", Task::Status::ToDo, time, time);
-  Task t1 = Task(1, "Do my homework", Task::Status::InProgress, time, time);
-  todolist.setTasks({t0, t1});
+  auto t0 = Task(0, "Do the laundry", Task::Status::ToDo, time, time);
+  auto t1 = Task(1, "Do my homework", Task::Status::InProgress, time, time);
+  todolist.setTasks(
+      {std::make_pair(t0.getUid(), t0), std::make_pair(t1.getUid(), t1)});
 
   std::string time_f = std::format("{:%Y%m%d%H%M}", time);
   json data = {
