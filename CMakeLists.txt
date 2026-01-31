@@ -73,7 +73,7 @@ else()
   FetchContent_Declare(
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-  FetchContent_MakeAvailable(ftxui gtest json)
+  FetchContent_MakeAvailable(ftxui googletest json)
 endif()
 
 add_subdirectory(src)
