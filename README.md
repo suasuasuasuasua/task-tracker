@@ -76,3 +76,68 @@ nix run \
 ## Future Work
 
 - Add option to save in different places
+
+## Versioning and Releases
+
+This project uses [Semantic Versioning](https://semver.org/) and follows [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+
+### For Maintainers
+
+#### Bumping Version
+
+To bump the version manually, use the `make bump` command:
+
+```bash
+# Bump patch version (e.g., 1.0.0 -> 1.0.1)
+make bump VERSION=patch
+
+# Bump minor version (e.g., 1.0.0 -> 1.1.0)
+make bump VERSION=minor
+
+# Bump major version (e.g., 1.0.0 -> 2.0.0)
+make bump VERSION=major
+
+# Set a specific version
+make bump VERSION=1.2.3
+```
+
+This will update the version in:
+- `VERSION` file
+- `CMakeLists.txt`
+- `flake.nix`
+- `.cz.yaml`
+
+#### Creating a Release
+
+1. Bump the version (see above)
+2. Update `CHANGELOG.md` with the changes
+3. Commit the changes:
+   ```bash
+   git add -A
+   git commit -m "chore: bump version to X.Y.Z"
+   ```
+4. Create and push a tag:
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+5. The GitHub Actions workflow will automatically:
+   - Build binaries for all supported platforms
+   - Create a GitHub Release
+   - Attach downloadable artifacts (accessible to non-authenticated users)
+
+### For Users
+
+#### Installation
+
+Download the latest release from the [Releases page](https://github.com/suasuasuasuasua/task-tracker/releases).
+
+Or use Nix with a specific version:
+```bash
+# Run latest release
+nix run github:suasuasuasuasua/task-tracker
+
+# Run a specific version
+nix run github:suasuasuasuasua/task-tracker/v0.1.0
+```

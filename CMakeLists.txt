@@ -45,9 +45,8 @@ message(STATUS "TaskTracker Build Type: ${CMAKE_BUILD_TYPE}")
 set(TaskTracker_Version_Major 0)
 set(TaskTracker_Version_Minor 1)
 set(TaskTracker_Version_Patch 0)
-set(TaskTracker_Version_Status "-dev")
 set(PROJECT_VERSION
-    "${TaskTracker_Version_Major}.${TaskTracker_Version_Minor}.${TaskTracker_Version_Patch}${TaskTracker_Version_Status}"
+    "${TaskTracker_Version_Major}.${TaskTracker_Version_Minor}.${TaskTracker_Version_Patch}"
 )
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 

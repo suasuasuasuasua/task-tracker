@@ -17,4 +17,11 @@ clean:
 	@printf "\nCleaning build directory '${BUILD_DIR}'\n"
 	cmake --build ${BUILD_DIR} --target clean
 
-.PHONY: build setup test clean
+bump:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION not specified. Usage: make bump VERSION=major|minor|patch|X.Y.Z"; \
+		exit 1; \
+	fi
+	@./scripts/bump-version.sh $(VERSION)
+
+.PHONY: build setup test clean bump
