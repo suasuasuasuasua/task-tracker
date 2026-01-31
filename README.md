@@ -1,7 +1,7 @@
 # Task Tracker in C++
 
-A task tracker (todo list) implemented in C++ (targetting C++=20) using FTXUI
-for the tui library.
+A task tracker (todo list) implemented in C++ (targetting C++20) using FTXUI for
+the tui library.
 
 ## Usage
 
@@ -27,16 +27,19 @@ Currently, task-tracker is building against these dependencies. See `shell.nix`
 for more information.
 
 ```text
-clang-tidy==21.1.7
 clang==21.1.7
 cmake==4.1.2
-make==4.4.1
+ftxui==6.1.9
+gtest==1.17.0
 ninja==1.13.1
+nlogmann_json==3.12.0
+spdlog==1.15.3
 ```
 
-See the `Makefile` for more targets. Of note, you can change the
-`CMAKE_BUILD_TYPE` to something other than 'Release' if you need debug symbols
-or whatnot.
+You can build the program using `make`, which secretly calls the appropriate
+`cmake` commands in the targets. See the `Makefile` for more details. Of note,
+you can change the `CMAKE_BUILD_TYPE` to something other than 'Release' if you
+need debug symbols and so on.
 
 ```bash
 make build
@@ -59,6 +62,17 @@ be changed to a local directory in case you don't have `sudo` access.
 # by default, installs to /usr/local/bin which requires sudo access
 make install CMAKE_INSTALL_PREFIX=~/.local
 ```
+
+## Development
+
+I highly recommend using `nix` and `direnv` to automatically setup the
+development shell and environment.
+
+If not using `nix`, please see the 'build' section, as well as the
+CMakeLists.txt files for the list of dependencies. CMake has been configured to
+fetch the dependencies from GitHub using `FetchContent`.
+
+> I have not tested out development environments without `nix` thoroughly.
 
 ## Archive
 
