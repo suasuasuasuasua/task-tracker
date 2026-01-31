@@ -40,3 +40,4 @@ todo.json
 .cache
 compile_commands.json
 result
+logs

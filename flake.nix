@@ -34,6 +34,7 @@
             ftxui
             gtest
             nlohmann_json
+            spdlog
             ;
           inherit (nixpkgs.legacyPackages.x86_64-linux.llvmPackages_21)
             stdenv
@@ -50,6 +51,7 @@
             ftxui
             gtest
             nlohmann_json
+            spdlog
           ];
           configurePhase = ''
             export has_nix=true
