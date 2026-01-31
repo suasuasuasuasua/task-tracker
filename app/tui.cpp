@@ -17,7 +17,6 @@ using namespace ftxui;
 
 auto button_style = ButtonOption::Simple();
 
-// Definition of the main component. The details are not important.
 Component MainComponent(TodoViewModel &tvm,
                         std::function<void()> addtask_show_modal,
                         std::function<void()> exit) {
@@ -35,7 +34,6 @@ Component MainComponent(TodoViewModel &tvm,
   component |= Renderer([&](Element inner) {
     auto idx = tvm.get_selected_task_const();
     auto comp = vbox({
-        separator(),
         inner,
         separator(),
         text(std::format("Current selected text: {}",
@@ -43,13 +41,12 @@ Component MainComponent(TodoViewModel &tvm,
         text(std::format("Current selected input: {}", idx)),
     });
 
-    return window(text("Task Tracker"), comp);
+    return window(text("Task Tracker") | bold | center, comp);
   });
 
   return component;
 }
 
-// Definition of the modal component. The details are not important.
 Component AddTaskComponent(TodoViewModel &tvm,
                            std::function<void()> hide_modal) {
 
@@ -109,17 +106,22 @@ int main(int argc, const char *argv[]) {
   auto main_component = MainComponent(tvm, addtask_show_modal, exit_prog);
   auto add_task_component = AddTaskComponent(tvm, addtask_hide_modal);
 
-  main_component |= CatchEvent([&addtask_show_modal, &exit_prog](Event event) {
-    if (event == Event::n) {
-      addtask_show_modal();
-      return true;
-    }
-    if (event == Event::q) {
-      exit_prog();
-      return true;
-    }
-    return false;
-  });
+  main_component |=
+      CatchEvent([&tvm, &addtask_show_modal, &exit_prog](Event event) {
+        if (event == Event::d) {
+          tvm.delete_selected_task();
+          return true;
+        }
+        if (event == Event::n) {
+          addtask_show_modal();
+          return true;
+        }
+        if (event == Event::q) {
+          exit_prog();
+          return true;
+        }
+        return false;
+      });
 
   // Use the `Modal` function to use together the main component and its modal
   // window. The |modal_shown| boolean controls whether the modal is shown or

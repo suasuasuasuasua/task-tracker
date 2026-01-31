@@ -25,7 +25,7 @@ public:
   //////////////////////////////////////////////////////////////////////////////
   // ViewModel logic
   // non-mutable refs getters
-  std::list<Task> get_tasks() const;
+  std::vector<Task> get_tasks() const;
   const std::string &get_input_text_const() const;
   const std::vector<std::string> &get_task_entries_const() const;
   const std::int32_t &get_selected_task_const() const;
@@ -35,6 +35,9 @@ public:
   std::vector<std::string> &get_task_entries();
   std::int32_t &get_seleted_task();
 
+  // other
+  void delete_selected_task();
+
 private:
   // model data (data structures)
   TodoTracker model;
@@ -42,9 +45,9 @@ private:
 
   // view model data (ui state)
   std::string input_text;                 // the text for a new task
-  std::list<Task> filtered_tasks;         // set of tasks (filter(s) applied)
+  std::vector<Task> filtered_tasks;       // set of tasks (filter(s) applied)
   std::vector<std::string> tasks_entries; // tasks displayed in the menu
-  std::int32_t selected_task;             // the currented selected task
+  std::int32_t selected_task_idx;         // the currented selected task
 
   // helpers
   void refresh_tasks();

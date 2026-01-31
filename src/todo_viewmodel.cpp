@@ -1,5 +1,7 @@
 #include "todo_viewmodel.h"
+#include <algorithm>
 #include <iostream>
+#include <ranges>
 #include <sstream>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -34,11 +36,11 @@ const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
 }
 
 const std::int32_t &TodoViewModel::get_selected_task_const() const {
-  return selected_task;
+  return selected_task_idx;
 }
 
 // mutable refs getters
-std::list<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
+std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
 
 std::string &TodoViewModel::get_input_text() { return input_text; }
 
@@ -46,7 +48,31 @@ std::vector<std::string> &TodoViewModel::get_task_entries() {
   return tasks_entries;
 }
 
-std::int32_t &TodoViewModel::get_seleted_task() { return selected_task; }
+std::int32_t &TodoViewModel::get_seleted_task() { return selected_task_idx; }
+
+//////////////////////////////////////////////////////////////////////////////
+// Other
+void TodoViewModel::delete_selected_task() {
+  // no task to delete
+  if (filtered_tasks.empty()) {
+    return;
+  }
+
+  // bounds checking for index
+  if (selected_task_idx < 0 || selected_task_idx >= filtered_tasks.size()) {
+    return;
+  }
+
+  // get the task uid
+  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  model.delete_task(uid);
+  refresh_tasks();
+
+  // adjust the selected_task_idx to be within the bounds (0, size)
+  selected_task_idx =
+      std::clamp(selected_task_idx, 0,
+                 static_cast<std::int32_t>(filtered_tasks.size() - 1));
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Private helpers
@@ -61,8 +87,8 @@ void TodoViewModel::refresh_tasks() {
   for (const auto &t : tasks) {
     ss << t;
     filtered_tasks.push_back(t);
-    // TODO: format the strings nicer
-    tasks_entries.push_back(ss.str());
+    // TODO: format the strings nicer?
+    tasks_entries.emplace_back(ss.str());
 
     ss.str(std::string()); // clear the stringstream
   }
