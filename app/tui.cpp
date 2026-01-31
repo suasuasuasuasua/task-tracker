@@ -1,21 +1,16 @@
-// Copyright 2022 Arthur Sonzogni. All rights reserved.
-// Use of this source code is governed by the MIT license that can be found in
-// the LICENSE file.
 #include <filesystem>
 #include <format>
-#include <ftxui/component/component_options.hpp> // for ButtonOption
-#include <ftxui/component/mouse.hpp>             // for ftxui
-#include <functional>                            // for function
+#include <functional>
+
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/component_options.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "spdlog/spdlog.h"
 
 #include "todo_viewmodel.h"
 
-#include "ftxui/component/component.hpp" // for Button, operator|=, Renderer, Vertical, Modal
-#include "ftxui/component/screen_interactive.hpp" // for ScreenInteractive, Component
-#include "ftxui/dom/elements.hpp" // for operator|, separator, text, size, Element, vbox, border, GREATER_THAN, WIDTH, center, HEIGHT
-
 using namespace ftxui;
-
-auto button_style = ButtonOption::Simple();
 
 Component MainComponent(TodoViewModel &tvm,
                         std::function<void()> addtask_show_modal,
@@ -24,6 +19,7 @@ Component MainComponent(TodoViewModel &tvm,
   // the entries are defined via const reference, and the index is a mutable ref
   auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_seleted_task());
 
+  auto button_style = ButtonOption::Simple();
   auto component = Container::Vertical({
       Button("Add Task", addtask_show_modal, button_style),
       tasklist,
@@ -57,6 +53,7 @@ Component AddTaskComponent(TodoViewModel &tvm,
   auto text_field =
       Input(&tvm.get_input_text(), "Enter a task!", input_options);
 
+  auto button_style = ButtonOption::Simple();
   auto component = Container::Vertical({
       text_field,
       Button("Quit", hide_modal, button_style),
@@ -83,6 +80,10 @@ Component AddTaskComponent(TodoViewModel &tvm,
 }
 
 int main(int argc, const char *argv[]) {
+  // Setup the loggers
+  spdlog::set_level(spdlog::level::debug); // Set *global* log level to debug
+
+  // Setup the screen
   auto screen = ScreenInteractive::Fullscreen();
 
   // TODO: add this shared routine to a util file

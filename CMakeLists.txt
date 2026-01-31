@@ -56,9 +56,10 @@ include(FetchContent)
 # third-party deps
 if(DEFINED ENV{has_nix})
   message("Using nix deps")
-  find_package(ftxui 6.1.9 REQUIRED)
   find_package(GTest 1.17.0 REQUIRED)
+  find_package(ftxui 6.1.9 REQUIRED)
   find_package(nlohmann_json 3.12.0 REQUIRED)
+  find_package(spdlog 1.15.3 REQUIRED)
 else()
   message("Fetching deps from git")
   FetchContent_Declare(
@@ -73,9 +74,14 @@ else()
   FetchContent_Declare(
     json
     URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-  FetchContent_MakeAvailable(ftxui googletest json)
+  FetchContent_Declare(
+    spdlog
+    URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.3.tar.gz)
+
+  FetchContent_MakeAvailable(ftxui googletest json spdlog)
 endif()
 
+add_subdirectory(app)
 add_subdirectory(src)
 add_subdirectory(tests)
 

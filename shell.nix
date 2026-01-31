@@ -10,5 +10,6 @@ pkgs.mkShell.override { inherit (pkgs.llvmPackages_21) stdenv; } {
     gtest
     ninja
     nlohmann_json
+    spdlog
   ];
 }
