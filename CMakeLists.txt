@@ -5,7 +5,13 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
   message(FATAL_ERROR "In-source builds are not allowed")
 endif()
 
-project(TaskTracker LANGUAGES CXX)
+file(READ "VERSION" ver)
+string(REPLACE "v" "" ver ${ver})
+string(REPLACE "\n" "" ver ${ver})
+project(
+  TaskTracker
+  LANGUAGES CXX
+  VERSION ${ver})
 
 # TODO: enable on dev or ci builds? takes a while to get through ftxui
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
@@ -39,16 +45,9 @@ if(NOT CMAKE_BUILD_TYPE)
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
-message(STATUS "TaskTracker Build Type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "${PROJECT_NAME} Build Type: ${CMAKE_BUILD_TYPE}")
 
-# Set the version for TaskTracker
-set(TaskTracker_Version_Major 0)
-set(TaskTracker_Version_Minor 1)
-set(TaskTracker_Version_Patch 0)
-set(TaskTracker_Version_Status "-dev")
-set(PROJECT_VERSION
-    "${TaskTracker_Version_Major}.${TaskTracker_Version_Minor}.${TaskTracker_Version_Patch}${TaskTracker_Version_Status}"
-)
+# Set the version for the project
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 include(FetchContent)

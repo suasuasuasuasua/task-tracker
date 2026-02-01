@@ -27,46 +27,25 @@
       treefmtEval = forEachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
     in
     {
-      packages.x86_64-linux.default =
+      packages.x86_64-linux.default = self.packages.x86_64-linux.task-tracker;
+      packages.x86_64-linux.task-tracker =
         let
-          inherit (nixpkgs.legacyPackages.x86_64-linux)
-            cmake
-            ftxui
-            gtest
-            nlohmann_json
-            spdlog
-            ;
-          inherit (nixpkgs.legacyPackages.x86_64-linux.llvmPackages_21)
-            stdenv
-            clang-tools
-            ;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          version = builtins.readFile ./VERSION;
         in
-        stdenv.mkDerivation {
-          pname = "task-cli";
-          version = "0.1.0";
-          src = ./.;
-          nativeBuildInputs = [
-            clang-tools
+        import ./pkgs {
+          inherit self version;
+          inherit (pkgs)
             cmake
             ftxui
             gtest
             nlohmann_json
             spdlog
-          ];
-          configurePhase = ''
-            export has_nix=true
-          '';
-          cmakeFlags = [
-            "-DCMAKE_BUILD_TYPE=Release"
-            "-Dhas_nix=true"
-          ];
-          buildPhase = ''
-            make build
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp build/bin/* $out/bin
-          '';
+            ;
+          inherit (pkgs.llvmPackages_21)
+            clang-tools
+            stdenv
+            ;
         };
 
       #  for `nix fmt`
