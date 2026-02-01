@@ -19,8 +19,13 @@ test: build
 install: build
 	@printf "\nInstalling...\n"
 	cmake --build ${BUILD_DIR} --target install
+
+uninstall:
+	@printf "\nUninstalling...\n"
+	xargs rm < ${BUILD_DIR}/install_manifest.txt
+
 clean:
 	@printf "\nCleaning build directory '${BUILD_DIR}'\n"
 	cmake --build ${BUILD_DIR} --target clean
 
-.PHONY: build setup test install clean
+.PHONY: build setup test install uninstall clean
