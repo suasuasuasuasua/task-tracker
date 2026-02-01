@@ -1,9 +1,10 @@
-#include "todo_viewmodel.h"
-#include "task.h"
 #include <algorithm>
 #include <functional>
 #include <iostream>
 #include <sstream>
+
+#include "task.h"
+#include "todo_viewmodel.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Model logic
@@ -14,11 +15,20 @@ void TodoViewModel::add_task() {
     std::cerr << "Cannot add an empty task\n";
     return;
   }
-  // reset the selected task to the newly created
-  selected_task_idx = model.add_task(task_text);
+
+  auto uid = model.add_task(task_text);
   addtask_input_text.clear();
 
   refresh_tasks();
+
+  // update the current selected task to the last inserted task
+  auto it =
+      std::find_if(filtered_tasks.cbegin(), filtered_tasks.cend(),
+                   [uid](const Task &task) { return task.getUid() == uid; });
+  if (it != filtered_tasks.end()) {
+    selected_task_idx =
+        static_cast<std::int32_t>(std::distance(filtered_tasks.cbegin(), it));
+  }
 }
 
 void TodoViewModel::update_task() {
