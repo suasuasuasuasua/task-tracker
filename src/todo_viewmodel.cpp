@@ -1,7 +1,10 @@
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <iostream>
+#include <ranges>
 #include <sstream>
+#include <string_view>
 
 #include "task.h"
 #include "todo_viewmodel.h"
@@ -156,11 +159,25 @@ void TodoViewModel::refresh_tasks() {
 }
 
 std::string TodoViewModel::trim_string(const std::string &str) {
-  auto s = str;
-  s.erase(0, s.find_first_not_of(" \t\n\r"));
-  s.erase(s.find_last_not_of(" \t\n\r") + 1);
+  // Modern C++20 approach using std::ranges and string_view
+  // This is more ergonomic and similar to Python's .strip()
+  constexpr auto is_whitespace = [](unsigned char c) {
+    return std::isspace(c);
+  };
 
-  return s;
+  std::string_view sv{str};
+  
+  // Find first non-whitespace character
+  auto start = std::ranges::find_if_not(sv, is_whitespace);
+  if (start == sv.end()) {
+    return std::string(); // All whitespace or empty
+  }
+
+  // Find last non-whitespace character (reverse search)
+  auto end = std::ranges::find_if_not(sv | std::views::reverse, is_whitespace).base();
+  
+  // Create substring from trimmed view
+  return std::string(start, end);
 }
 
 bool TodoViewModel::is_selected_task_valid() {
