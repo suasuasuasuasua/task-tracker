@@ -159,9 +159,10 @@ int main(int argc, const char *argv[]) {
                   tvm.get_selected_task_const());
 
       // fill in the edit field
-      if (not tvm.get_tasks().empty()) {
-        tvm.get_edittask_input_text() =
-            tvm.get_tasks().at(tvm.get_selected_task_const()).getDesc();
+      auto ts = tvm.get_tasks();
+      auto idx = tvm.get_selected_task_const();
+      if (not ts.empty()) {
+        tvm.get_edittask_input_text() = ts.at(idx).getDesc();
       }
 
       tvm.edittask_show()();
