@@ -1,15 +1,19 @@
 #ifndef INCLUDE_INC_TODO_VIEWMODEL_H_
 #define INCLUDE_INC_TODO_VIEWMODEL_H_
 
-#include "todo.h"
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <vector>
+
+#include "todo.h"
+
 class TodoViewModel {
 public:
   TodoViewModel(const std::filesystem::path filepath)
-      : filepath(filepath), addtask_input_shown(false), selected_task_idx(0U) {
+      : filepath(filepath), addtask_input_shown(false),
+        edittask_input_shown(false), selected_task_idx(0U) {
     model.from_json(filepath);
 
     // initialize the tasks and task entries
