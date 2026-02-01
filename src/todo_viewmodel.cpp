@@ -1,17 +1,15 @@
-#include "todo_viewmodel.h"
-#include "task.h"
 #include <algorithm>
 #include <functional>
 #include <iostream>
 #include <sstream>
 
+#include "task.h"
+#include "todo_viewmodel.h"
+
 //////////////////////////////////////////////////////////////////////////////
 // Model logic
 void TodoViewModel::add_task() {
-  auto task_text = input_text;
-  task_text.erase(0, task_text.find_first_not_of(" \t\n\r"));
-  task_text.erase(task_text.find_last_not_of(" \t\n\r") + 1);
-
+  auto task_text = trim_string(addtask_input_text);
   if (task_text.empty()) {
     // TODO: add status bar logic
     std::cerr << "Cannot add an empty task\n";
@@ -19,7 +17,34 @@ void TodoViewModel::add_task() {
   }
 
   auto uid = model.add_task(task_text);
-  input_text.clear();
+  addtask_input_text.clear();
+
+  refresh_tasks();
+
+  // update the current selected task to the last inserted task
+  auto it =
+      std::find_if(filtered_tasks.cbegin(), filtered_tasks.cend(),
+                   [uid](const Task &task) { return task.getUid() == uid; });
+  if (it != filtered_tasks.end()) {
+    selected_task_idx =
+        static_cast<std::int32_t>(std::distance(filtered_tasks.cbegin(), it));
+  }
+}
+
+void TodoViewModel::update_task() {
+  if (filtered_tasks.empty() or not is_selected_task_valid()) {
+    return;
+  }
+
+  auto task_text = trim_string(edittask_input_text);
+  if (task_text.empty()) {
+    // TODO: add status bar logic
+    std::cerr << "Cannot edit an empty task\n";
+    return;
+  }
+
+  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  model.update_task(uid, task_text);
 
   refresh_tasks();
 }
@@ -54,8 +79,12 @@ void TodoViewModel::mark_task(Task::Status status) {
 // ViewModel logic
 
 // non-mutable refs getters
-const std::string &TodoViewModel::get_input_text_const() const {
-  return input_text;
+const std::string &TodoViewModel::get_addtask_input_text_const() const {
+  return addtask_input_text;
+}
+
+const std::string &TodoViewModel::get_edittask_input_text_const() const {
+  return edittask_input_text;
 }
 
 const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
@@ -68,11 +97,20 @@ const std::int32_t &TodoViewModel::get_selected_task_const() const {
 const bool &TodoViewModel::get_addtask_input_shown() const {
   return addtask_input_shown;
 }
+const bool &TodoViewModel::get_edittask_input_shown() const {
+  return edittask_input_shown;
+}
 
 // mutable refs getters
 std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
 
-std::string &TodoViewModel::get_input_text() { return input_text; }
+std::string &TodoViewModel::get_addtask_input_text() {
+  return addtask_input_text;
+}
+
+std::string &TodoViewModel::get_edittask_input_text() {
+  return edittask_input_text;
+}
 
 std::vector<std::string> &TodoViewModel::get_task_entries() {
   return tasks_entries;
@@ -89,6 +127,12 @@ std::function<void()> TodoViewModel::addtask_show() {
 }
 std::function<void()> TodoViewModel::addtask_hide() {
   return [this] { addtask_input_shown = false; };
+}
+std::function<void()> TodoViewModel::edittask_show() {
+  return [this] { edittask_input_shown = true; };
+}
+std::function<void()> TodoViewModel::edittask_hide() {
+  return [this] { edittask_input_shown = false; };
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -109,6 +153,17 @@ void TodoViewModel::refresh_tasks() {
 
     ss.str(std::string()); // clear the stringstream
   }
+}
+
+std::string TodoViewModel::trim_string(const std::string &str) {
+  const auto first = str.find_first_not_of(" \t\n\r");
+  if (first == std::string::npos) {
+    // String is empty or all whitespace
+    return std::string();
+  }
+  const auto last = str.find_last_not_of(" \t\n\r");
+
+  return str.substr(first, last - first + 1);
 }
 
 bool TodoViewModel::is_selected_task_valid() {

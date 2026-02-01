@@ -1,5 +1,4 @@
 #include <filesystem>
-#include <format>
 #include <functional>
 #include <iostream>
 
@@ -21,51 +20,35 @@ Component MainComponent(TodoViewModel &tvm) {
   // the entries are defined via const reference, and the index is a mutable ref
   auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_selected_task());
 
-  auto button_style = ButtonOption::Simple();
-  auto component = Container::Vertical({
-      Button("Add Task", tvm.addtask_show(), button_style),
-      tasklist,
-      // TODO: add exit button back with callback. should it be in viewmodel?
-      // Button("Quit", exit, button_style),
-  });
+  // list of components in the main screen
+  auto component = Container::Vertical({tasklist});
 
-  // Polish how the two buttons are rendered:
+  // add a renderer to the main screen
   component |= Renderer([&](Element inner) {
-    Elements elems = {inner, separator()};
+    Elements elems = {
+        window(text("Tasks"), inner),
+    };
 
-    if (not tvm.get_tasks().empty()) {
-      auto entries = tvm.get_task_entries_const();
-      auto idx = tvm.get_selected_task_const();
-      elems.emplace_back(
-          text(std::format("Current selected text: {}", entries.at(idx))));
-      elems.emplace_back(text(std::format("Current selected input: {}", idx)));
-    }
-
-    return window(text("Task Tracker") | bold | center, vbox(elems));
+    return window(text("Task Tracker") | center, vbox(elems));
   });
 
   return component;
 }
 
 Component AddTaskComponent(TodoViewModel &tvm) {
-
   auto input_options = InputOption::Spacious();
   input_options.multiline = false;
   input_options.on_enter = [&tvm] { tvm.add_task(); };
 
-  auto text_field =
-      Input(&tvm.get_input_text(), "Enter a task!", input_options);
+  auto text_field = Input(&tvm.get_addtask_input_text(), input_options);
 
-  auto button_style = ButtonOption::Simple();
   auto component = Container::Vertical({
       text_field,
-      Button("Quit", tvm.addtask_hide(), button_style),
   });
-  // Polish how the two buttons are rendered:
+
   component |= Renderer([&](Element inner) {
     return vbox({
                text("Enter the task"),
-               separator(),
                inner,
            }) |
            size(WIDTH, GREATER_THAN, 80) | border;
@@ -74,6 +57,36 @@ Component AddTaskComponent(TodoViewModel &tvm) {
   component |= CatchEvent([&tvm](Event event) {
     if (event == Event::Escape) {
       tvm.addtask_hide()();
+      return true;
+    }
+    return false;
+  });
+
+  return component;
+}
+
+Component EditTaskComponent(TodoViewModel &tvm) {
+  auto input_options = InputOption::Spacious();
+  input_options.multiline = false;
+  input_options.on_enter = [&tvm] { tvm.update_task(); };
+
+  auto text_field = Input(&tvm.get_edittask_input_text(), input_options);
+
+  auto component = Container::Vertical({
+      text_field,
+  });
+
+  component |= Renderer([&](Element inner) {
+    return vbox({
+               text("Edit the task"),
+               inner,
+           }) |
+           size(WIDTH, GREATER_THAN, 80) | border;
+  });
+
+  component |= CatchEvent([&tvm](Event event) {
+    if (event == Event::Escape) {
+      tvm.edittask_hide()();
       return true;
     }
     return false;
@@ -131,7 +144,6 @@ int main(int argc, const char *argv[]) {
 
   // Instanciate the main and modal components:
   auto main_component = MainComponent(tvm);
-  auto add_task_component = AddTaskComponent(tvm);
 
   main_component |= CatchEvent([&tvm, &screen](Event event) {
     if (event == Event::d) {
@@ -139,6 +151,21 @@ int main(int argc, const char *argv[]) {
           ->debug("Key [d] Deleting selected task: {}.",
                   tvm.get_selected_task_const());
       tvm.delete_selected_task();
+      return true;
+    }
+    if (event == Event::e) {
+      spdlog::get(logger_name)
+          ->debug("Key [e] Editing selected task: {}.",
+                  tvm.get_selected_task_const());
+
+      // fill in the edit field
+      auto ts = tvm.get_tasks();
+      auto idx = tvm.get_selected_task_const();
+      if (not ts.empty()) {
+        tvm.get_edittask_input_text() = ts.at(idx).getDesc();
+      }
+
+      tvm.edittask_show()();
       return true;
     }
     if (event == Event::i) {
@@ -178,7 +205,10 @@ int main(int argc, const char *argv[]) {
   // Use the `Modal` function to use together the main component and its modal
   // window. The |modal_shown| boolean controls whether the modal is shown or
   // not.
-  main_component |= Modal(add_task_component, &tvm.get_addtask_input_shown());
+  main_component |=
+      Modal(AddTaskComponent(tvm), &tvm.get_addtask_input_shown());
+  main_component |=
+      Modal(EditTaskComponent(tvm), &tvm.get_edittask_input_shown());
   spdlog::get(logger_name)->debug("Added modal component successfuly.");
 
   screen.Loop(main_component);
