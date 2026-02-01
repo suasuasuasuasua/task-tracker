@@ -29,44 +29,21 @@
     {
       packages.x86_64-linux.default =
         let
-          inherit (nixpkgs.legacyPackages.x86_64-linux)
-            cmake
-            ftxui
-            gtest
-            nlohmann_json
-            spdlog
-            ;
-          inherit (nixpkgs.legacyPackages.x86_64-linux.llvmPackages_21)
-            stdenv
-            clang-tools
-            ;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
         in
-        stdenv.mkDerivation {
-          pname = "task-cli";
-          version = "0.1.0";
-          src = ./.;
-          nativeBuildInputs = [
-            clang-tools
+        import ./pkgs {
+          inherit self;
+          inherit (pkgs)
             cmake
             ftxui
             gtest
             nlohmann_json
             spdlog
-          ];
-          configurePhase = ''
-            export has_nix=true
-          '';
-          cmakeFlags = [
-            "-DCMAKE_BUILD_TYPE=Release"
-            "-Dhas_nix=true"
-          ];
-          buildPhase = ''
-            make build
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp build/bin/* $out/bin
-          '';
+            ;
+          inherit (pkgs.llvmPackages_21)
+            clang-tools
+            stdenv
+            ;
         };
 
       #  for `nix fmt`
