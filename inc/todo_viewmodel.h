@@ -21,6 +21,7 @@ public:
   //////////////////////////////////////////////////////////////////////////////
   // Model logic
   void add_task();
+  void update_task();
   void delete_selected_task();
   void mark_task(Task::Status status);
 
@@ -32,6 +33,7 @@ public:
   const std::vector<std::string> &get_task_entries_const() const;
   const std::int32_t &get_selected_task_const() const;
   const bool &get_addtask_input_shown() const;
+  const bool &get_edittask_input_shown() const;
 
   // mutable refs getters
   std::string &get_input_text();
@@ -43,6 +45,8 @@ public:
   // callbacks (closures)
   std::function<void()> addtask_show();
   std::function<void()> addtask_hide();
+  std::function<void()> edittask_show();
+  std::function<void()> edittask_hide();
 
 private:
   // model data (data structures)
@@ -56,9 +60,11 @@ private:
   std::int32_t selected_task_idx;         // the currented selected task
 
   bool addtask_input_shown;
+  bool edittask_input_shown;
 
   // helpers
   void refresh_tasks();
+  std::string trim_string(const std::string &str);
   bool is_selected_task_valid();
 };
 

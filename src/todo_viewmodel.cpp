@@ -8,18 +8,33 @@
 //////////////////////////////////////////////////////////////////////////////
 // Model logic
 void TodoViewModel::add_task() {
-  auto task_text = input_text;
-  task_text.erase(0, task_text.find_first_not_of(" \t\n\r"));
-  task_text.erase(task_text.find_last_not_of(" \t\n\r") + 1);
-
+  auto task_text = trim_string(input_text);
   if (task_text.empty()) {
     // TODO: add status bar logic
     std::cerr << "Cannot add an empty task\n";
     return;
   }
-
-  auto uid = model.add_task(task_text);
+  // reset the selected task to the newly created
+  selected_task_idx = model.add_task(task_text);
   input_text.clear();
+
+  refresh_tasks();
+}
+
+void TodoViewModel::update_task() {
+  if (filtered_tasks.empty() or not is_selected_task_valid()) {
+    return;
+  }
+
+  auto task_text = trim_string(input_text);
+  if (task_text.empty()) {
+    // TODO: add status bar logic
+    std::cerr << "Cannot edit an empty task\n";
+    return;
+  }
+
+  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  model.update_task(uid, task_text);
 
   refresh_tasks();
 }
@@ -68,6 +83,9 @@ const std::int32_t &TodoViewModel::get_selected_task_const() const {
 const bool &TodoViewModel::get_addtask_input_shown() const {
   return addtask_input_shown;
 }
+const bool &TodoViewModel::get_edittask_input_shown() const {
+  return edittask_input_shown;
+}
 
 // mutable refs getters
 std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
@@ -90,6 +108,12 @@ std::function<void()> TodoViewModel::addtask_show() {
 std::function<void()> TodoViewModel::addtask_hide() {
   return [this] { addtask_input_shown = false; };
 }
+std::function<void()> TodoViewModel::edittask_show() {
+  return [this] { edittask_input_shown = true; };
+}
+std::function<void()> TodoViewModel::edittask_hide() {
+  return [this] { edittask_input_shown = false; };
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Private helpers
@@ -109,6 +133,14 @@ void TodoViewModel::refresh_tasks() {
 
     ss.str(std::string()); // clear the stringstream
   }
+}
+
+std::string TodoViewModel::trim_string(const std::string &str) {
+  auto s = str;
+  s.erase(0, s.find_first_not_of(" \t\n\r"));
+  s.erase(s.find_last_not_of(" \t\n\r") + 1);
+
+  return s;
 }
 
 bool TodoViewModel::is_selected_task_valid() {
