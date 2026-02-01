@@ -29,6 +29,17 @@ Component MainComponent(TodoViewModel &tvm) {
         window(text("Tasks"), inner),
     };
 
+    // TODO: add debug mode
+    // if (not tvm.get_tasks().empty()) {
+    //   auto entries = tvm.get_task_entries_const();
+    //   auto idx = tvm.get_selected_task_const();
+    //   elems.emplace_back(separator());
+    //   elems.emplace_back(
+    //       text(std::format("Current selected text: {}", entries.at(idx))));
+    //   elems.emplace_back(text(std::format("Current selected input: {}",
+    //   idx)));
+    // }
+
     return window(text("Task Tracker") | center, vbox(elems));
   });
 
