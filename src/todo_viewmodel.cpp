@@ -156,11 +156,14 @@ void TodoViewModel::refresh_tasks() {
 }
 
 std::string TodoViewModel::trim_string(const std::string &str) {
-  auto s = str;
-  s.erase(0, s.find_first_not_of(" \t\n\r"));
-  s.erase(s.find_last_not_of(" \t\n\r") + 1);
+  const auto first = str.find_first_not_of(" \t\n\r");
+  if (first == std::string::npos) {
+    // String is empty or all whitespace
+    return std::string();
+  }
+  const auto last = str.find_last_not_of(" \t\n\r");
 
-  return s;
+  return str.substr(first, last - first + 1);
 }
 
 bool TodoViewModel::is_selected_task_valid() {
