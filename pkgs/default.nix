@@ -1,16 +1,18 @@
 {
-  self,
+  clang-tools,
   cmake,
   ftxui,
   gtest,
   nlohmann_json,
+  self,
   spdlog,
   stdenv,
-  clang-tools,
+  version,
 }:
 stdenv.mkDerivation {
+  inherit version;
+
   pname = "task-cli";
-  version = "0.1.0";
   src = self;
   nativeBuildInputs = [
     clang-tools

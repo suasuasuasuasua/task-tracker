@@ -27,12 +27,14 @@
       treefmtEval = forEachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
     in
     {
-      packages.x86_64-linux.default =
+      packages.x86_64-linux.default = self.packages.x86_64-linux.task-tracker;
+      packages.x86_64-linux.task-tracker =
         let
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          version = builtins.readFile ./VERSION;
         in
         import ./pkgs {
-          inherit self;
+          inherit self version;
           inherit (pkgs)
             cmake
             ftxui
