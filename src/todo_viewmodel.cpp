@@ -161,7 +161,7 @@ void TodoViewModel::refresh_tasks() {
 std::string TodoViewModel::trim_string(const std::string &str) {
   // Modern C++20 approach using std::ranges and string_view
   // This is more ergonomic and similar to Python's .strip()
-  constexpr auto is_whitespace = [](unsigned char c) {
+  auto is_whitespace = [](unsigned char c) {
     return std::isspace(c);
   };
 
@@ -170,7 +170,7 @@ std::string TodoViewModel::trim_string(const std::string &str) {
   // Find first non-whitespace character
   auto start = std::ranges::find_if_not(sv, is_whitespace);
   if (start == sv.end()) {
-    return std::string(); // All whitespace or empty
+    return ""; // All whitespace or empty
   }
 
   // Find last non-whitespace character (reverse search)
