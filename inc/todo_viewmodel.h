@@ -29,14 +29,16 @@ public:
   // ViewModel logic
   // non-mutable refs getters
   std::vector<Task> get_tasks() const;
-  const std::string &get_input_text_const() const;
+  const std::string &get_addtask_input_text_const() const;
+  const std::string &get_edittask_input_text_const() const;
   const std::vector<std::string> &get_task_entries_const() const;
   const std::int32_t &get_selected_task_const() const;
   const bool &get_addtask_input_shown() const;
   const bool &get_edittask_input_shown() const;
 
   // mutable refs getters
-  std::string &get_input_text();
+  std::string &get_addtask_input_text();
+  std::string &get_edittask_input_text();
   std::vector<std::string> &get_task_entries();
   std::int32_t &get_selected_task();
 
@@ -54,7 +56,8 @@ private:
   std::filesystem::path filepath;
 
   // view model data (ui state)
-  std::string input_text;                 // the text for a new task
+  std::string addtask_input_text;         // the text for a new task
+  std::string edittask_input_text;        // the text for editing a task
   std::vector<Task> filtered_tasks;       // set of tasks (filter(s) applied)
   std::vector<std::string> tasks_entries; // tasks displayed in the menu
   std::int32_t selected_task_idx;         // the currented selected task

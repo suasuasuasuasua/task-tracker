@@ -40,8 +40,7 @@ Component AddTaskComponent(TodoViewModel &tvm) {
   input_options.multiline = false;
   input_options.on_enter = [&tvm] { tvm.add_task(); };
 
-  auto text_field =
-      Input(&tvm.get_input_text(), "Enter a task!", input_options);
+  auto text_field = Input(&tvm.get_addtask_input_text(), input_options);
 
   auto component = Container::Vertical({
       text_field,
@@ -50,7 +49,6 @@ Component AddTaskComponent(TodoViewModel &tvm) {
   component |= Renderer([&](Element inner) {
     return vbox({
                text("Enter the task"),
-               separator(),
                inner,
            }) |
            size(WIDTH, GREATER_THAN, 80) | border;
@@ -72,8 +70,7 @@ Component EditTaskComponent(TodoViewModel &tvm) {
   input_options.multiline = false;
   input_options.on_enter = [&tvm] { tvm.update_task(); };
 
-  auto text_field =
-      Input(&tvm.get_input_text(), "Edit this task!", input_options);
+  auto text_field = Input(&tvm.get_edittask_input_text(), input_options);
 
   auto component = Container::Vertical({
       text_field,
@@ -82,7 +79,6 @@ Component EditTaskComponent(TodoViewModel &tvm) {
   component |= Renderer([&](Element inner) {
     return vbox({
                text("Edit the task"),
-               separator(),
                inner,
            }) |
            size(WIDTH, GREATER_THAN, 80) | border;
@@ -164,7 +160,7 @@ int main(int argc, const char *argv[]) {
 
       // fill in the edit field
       if (not tvm.get_tasks().empty()) {
-        tvm.get_input_text() =
+        tvm.get_edittask_input_text() =
             tvm.get_tasks().at(tvm.get_selected_task_const()).getDesc();
       }
 

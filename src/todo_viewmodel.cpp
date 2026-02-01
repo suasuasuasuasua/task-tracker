@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Model logic
 void TodoViewModel::add_task() {
-  auto task_text = trim_string(input_text);
+  auto task_text = trim_string(addtask_input_text);
   if (task_text.empty()) {
     // TODO: add status bar logic
     std::cerr << "Cannot add an empty task\n";
@@ -16,7 +16,7 @@ void TodoViewModel::add_task() {
   }
   // reset the selected task to the newly created
   selected_task_idx = model.add_task(task_text);
-  input_text.clear();
+  addtask_input_text.clear();
 
   refresh_tasks();
 }
@@ -26,7 +26,7 @@ void TodoViewModel::update_task() {
     return;
   }
 
-  auto task_text = trim_string(input_text);
+  auto task_text = trim_string(edittask_input_text);
   if (task_text.empty()) {
     // TODO: add status bar logic
     std::cerr << "Cannot edit an empty task\n";
@@ -69,8 +69,12 @@ void TodoViewModel::mark_task(Task::Status status) {
 // ViewModel logic
 
 // non-mutable refs getters
-const std::string &TodoViewModel::get_input_text_const() const {
-  return input_text;
+const std::string &TodoViewModel::get_addtask_input_text_const() const {
+  return addtask_input_text;
+}
+
+const std::string &TodoViewModel::get_edittask_input_text_const() const {
+  return edittask_input_text;
 }
 
 const std::vector<std::string> &TodoViewModel::get_task_entries_const() const {
@@ -90,7 +94,13 @@ const bool &TodoViewModel::get_edittask_input_shown() const {
 // mutable refs getters
 std::vector<Task> TodoViewModel::get_tasks() const { return filtered_tasks; }
 
-std::string &TodoViewModel::get_input_text() { return input_text; }
+std::string &TodoViewModel::get_addtask_input_text() {
+  return addtask_input_text;
+}
+
+std::string &TodoViewModel::get_edittask_input_text() {
+  return edittask_input_text;
+}
 
 std::vector<std::string> &TodoViewModel::get_task_entries() {
   return tasks_entries;
