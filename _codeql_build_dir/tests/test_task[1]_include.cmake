@@ -1,0 +1,5 @@
+if(EXISTS "/home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_task[1]_tests.cmake")
+  include("/home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_task[1]_tests.cmake")
+else()
+  add_test(test_task_NOT_BUILT test_task_NOT_BUILT)
+endif()
