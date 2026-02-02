@@ -7,17 +7,14 @@
 #include "ftxui/dom/elements.hpp"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
+
 #include "task.h"
 #include "todo_viewmodel.h"
+#include "tui_config.h"
 
 // Bring FTXUI names into scope, but Task type is already defined in task.h
 using namespace ftxui;
 using TaskStatus = ::Task::Status;
-
-namespace {
-constexpr const char *logger_name = "logger";
-constexpr int modal_min_width = 80;
-} // namespace
 
 /// @brief Creates the main task list component
 Component MainComponent(TodoViewModel &tvm) {
@@ -30,8 +27,8 @@ Component MainComponent(TodoViewModel &tvm) {
 
   // Add rendering layer
   component |= Renderer([](Element inner) {
-    return window(text("Task Tracker") | center,
-                  vbox({window(text("Tasks"), inner)}));
+    return window(text(tui_config::app_title.data()) | center,
+                  vbox({window(text(tui_config::tasks_window_title.data()), inner)}));
   });
 
   return component;
@@ -50,8 +47,8 @@ Component AddTaskComponent(TodoViewModel &tvm) {
   auto component = Container::Vertical({text_field});
 
   component |= Renderer([](Element inner) {
-    return vbox({text("Enter the task"), inner}) |
-           size(WIDTH, GREATER_THAN, modal_min_width) | border;
+    return vbox({text(tui_config::add_task_prompt.data()), inner}) |
+           size(WIDTH, GREATER_THAN, tui_config::modal_min_width) | border;
   });
 
   component |= CatchEvent([&ui](Event event) {
@@ -78,8 +75,8 @@ Component EditTaskComponent(TodoViewModel &tvm) {
   auto component = Container::Vertical({text_field});
 
   component |= Renderer([](Element inner) {
-    return vbox({text("Edit the task"), inner}) |
-           size(WIDTH, GREATER_THAN, modal_min_width) | border;
+    return vbox({text(tui_config::edit_task_prompt.data()), inner}) |
+           size(WIDTH, GREATER_THAN, tui_config::modal_min_width) | border;
   });
 
   component |= CatchEvent([&ui](Event event) {
@@ -115,44 +112,44 @@ int main(int argc, const char *argv[]) {
     auto log_path = state_dir / "task-tracker/log.txt";
 
     // setup the logger object
-    auto logger = spdlog::basic_logger_mt(logger_name, log_path);
+    auto logger = spdlog::basic_logger_mt(std::string(tui_config::logger_name), log_path);
     // flush logs every few seconds
     spdlog::flush_every(std::chrono::seconds(3));
   } catch (const spdlog::spdlog_ex &ex) {
     std::cerr << "Log init failed: " << ex.what() << std::endl;
   }
-  spdlog::get(logger_name)
+  spdlog::get(std::string(tui_config::logger_name))
       ->debug("Initialized logger sucessfully. Writing logs to {}.",
               state_dir.string());
 
   // Setup the screen
   auto screen = ScreenInteractive::Fullscreen();
-  spdlog::get(logger_name)->debug("Initialized screen sucessfully.");
+  spdlog::get(std::string(tui_config::logger_name))->debug("Initialized screen sucessfully.");
 
   // create the todo list under home if possible
   std::string filename = "todo.json";
   std::filesystem::path filepath = home_dir / filename;
-  spdlog::get(logger_name)->info("Reading data from {}", filepath.string());
+  spdlog::get(std::string(tui_config::logger_name))->info("Reading data from {}", filepath.string());
 
   // Create the view model that will mediate data between the models and views
   TodoViewModel tvm(filepath);
   auto &ui = tvm.ui_state();
-  spdlog::get(logger_name)
+  spdlog::get(std::string(tui_config::logger_name))
       ->info("Initialized view model from {}", filepath.string());
-  spdlog::get(logger_name)->flush();
+  spdlog::get(std::string(tui_config::logger_name))->flush();
 
   // Instanciate the main and modal components:
   auto main_component = MainComponent(tvm);
 
   main_component |= CatchEvent([&tvm, &ui, &screen](Event event) {
     if (event == Event::d) {
-      spdlog::get(logger_name)
+      spdlog::get(std::string(tui_config::logger_name))
           ->debug("Key [d] Deleting selected task: {}.", ui.selected_index());
       tvm.delete_selected_task();
       return true;
     }
     if (event == Event::e) {
-      spdlog::get(logger_name)
+      spdlog::get(std::string(tui_config::logger_name))
           ->debug("Key [e] Editing selected task: {}.", ui.selected_index());
 
       // Fill in the edit field with current task description
@@ -164,29 +161,29 @@ int main(int argc, const char *argv[]) {
       return true;
     }
     if (event == Event::i) {
-      spdlog::get(logger_name)
+      spdlog::get(std::string(tui_config::logger_name))
           ->debug("Key [i] Marking task in-progress: {}", ui.selected_index());
       tvm.mark_selected_task(TaskStatus::InProgress);
       return true;
     }
     if (event == Event::m) {
-      spdlog::get(logger_name)
+      spdlog::get(std::string(tui_config::logger_name))
           ->debug("Key [m] Marking task complete: {}", ui.selected_index());
       tvm.mark_selected_task(TaskStatus::Done);
       return true;
     }
     if (event == Event::n) {
-      spdlog::get(logger_name)->debug("Key [n] Showing 'add task' modal.");
+      spdlog::get(std::string(tui_config::logger_name))->debug("Key [n] Showing 'add task' modal.");
       ui.show_add_task_modal();
       return true;
     }
     if (event == Event::q) {
-      spdlog::get(logger_name)->debug("Key [q] Quit program requested.");
+      spdlog::get(std::string(tui_config::logger_name))->debug("Key [q] Quit program requested.");
       screen.ExitLoopClosure()();
       return true;
     }
     if (event == Event::t) {
-      spdlog::get(logger_name)
+      spdlog::get(std::string(tui_config::logger_name))
           ->debug("Key [t] Marking task todo: {}", ui.selected_index());
       tvm.mark_selected_task(TaskStatus::ToDo);
       return true;
@@ -201,11 +198,11 @@ int main(int argc, const char *argv[]) {
       Modal(AddTaskComponent(tvm), &ui.add_task_modal_shown());
   main_component |=
       Modal(EditTaskComponent(tvm), &ui.edit_task_modal_shown());
-  spdlog::get(logger_name)->debug("Added modal component successfuly.");
+  spdlog::get(std::string(tui_config::logger_name))->debug("Added modal component successfuly.");
 
   screen.Loop(main_component);
-  spdlog::get(logger_name)->flush();
+  spdlog::get(std::string(tui_config::logger_name))->flush();
 
-  spdlog::get(logger_name)->info("Closing TUI successfully.\n");
+  spdlog::get(std::string(tui_config::logger_name))->info("Closing TUI successfully.\n");
   return 0;
 }
