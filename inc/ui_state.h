@@ -60,7 +60,7 @@ public:
 
   void clamp_selection(std::size_t task_count) {
     if (task_count == 0) {
-      selected_task_idx_ = 0;
+      selected_task_idx_ = -1; // No valid selection when empty
     } else {
       selected_task_idx_ = std::clamp(
           selected_task_idx_, 0, static_cast<std::int32_t>(task_count - 1));

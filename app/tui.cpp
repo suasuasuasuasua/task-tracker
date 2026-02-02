@@ -119,12 +119,12 @@ int main(int argc, const char *argv[]) {
     std::cerr << "Log init failed: " << ex.what() << std::endl;
   }
   spdlog::get(std::string(tui_config::logger_name))
-      ->debug("Initialized logger sucessfully. Writing logs to {}.",
+      ->debug("Initialized logger successfully. Writing logs to {}.",
               state_dir.string());
 
   // Setup the screen
   auto screen = ScreenInteractive::Fullscreen();
-  spdlog::get(std::string(tui_config::logger_name))->debug("Initialized screen sucessfully.");
+  spdlog::get(std::string(tui_config::logger_name))->debug("Initialized screen successfully.");
 
   // create the todo list under home if possible
   std::string filename = "todo.json";
@@ -198,7 +198,7 @@ int main(int argc, const char *argv[]) {
       Modal(AddTaskComponent(tvm), &ui.add_task_modal_shown());
   main_component |=
       Modal(EditTaskComponent(tvm), &ui.edit_task_modal_shown());
-  spdlog::get(std::string(tui_config::logger_name))->debug("Added modal component successfuly.");
+  spdlog::get(std::string(tui_config::logger_name))->debug("Added modal component successfully.");
 
   screen.Loop(main_component);
   spdlog::get(std::string(tui_config::logger_name))->flush();
