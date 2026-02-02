@@ -1,78 +1,59 @@
 #ifndef INCLUDE_INC_TODO_VIEWMODEL_H_
 #define INCLUDE_INC_TODO_VIEWMODEL_H_
 
-#include <cstdint>
 #include <filesystem>
-#include <functional>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "todo.h"
+#include "ui_state.h"
 
+/// @brief View model that mediates between the TodoTracker model and UI views
+/// Follows MVVM pattern with clear separation of concerns
 class TodoViewModel {
 public:
-  TodoViewModel(const std::filesystem::path filepath)
-      : filepath(filepath), addtask_input_shown(false),
-        edittask_input_shown(false), selected_task_idx(0U) {
-    model.from_json(filepath);
+  explicit TodoViewModel(std::filesystem::path filepath);
+  ~TodoViewModel();
 
-    // initialize the tasks and task entries
-    refresh_tasks();
-  }
-
-  ~TodoViewModel() { model.to_json(filepath); }
+  // Prevent copying, allow moving
+  TodoViewModel(const TodoViewModel &) = delete;
+  TodoViewModel &operator=(const TodoViewModel &) = delete;
+  TodoViewModel(TodoViewModel &&) = default;
+  TodoViewModel &operator=(TodoViewModel &&) = default;
 
   //////////////////////////////////////////////////////////////////////////////
-  // Model logic
+  // Task Management - Business Logic Operations
   void add_task();
   void update_task();
   void delete_selected_task();
-  void mark_task(Task::Status status);
+  void mark_selected_task(Task::Status status);
 
   //////////////////////////////////////////////////////////////////////////////
-  // ViewModel logic
-  // non-mutable refs getters
-  std::vector<Task> get_tasks() const;
-  const std::string &get_addtask_input_text_const() const;
-  const std::string &get_edittask_input_text_const() const;
-  const std::vector<std::string> &get_task_entries_const() const;
-  const std::int32_t &get_selected_task_const() const;
-  const bool &get_addtask_input_shown() const;
-  const bool &get_edittask_input_shown() const;
-
-  // mutable refs getters
-  std::string &get_addtask_input_text();
-  std::string &get_edittask_input_text();
-  std::vector<std::string> &get_task_entries();
-  std::int32_t &get_selected_task();
+  // Query Methods - Const access to state
+  [[nodiscard]] std::optional<Task> get_selected_task() const;
+  [[nodiscard]] const std::vector<Task> &filtered_tasks() const {
+    return filtered_tasks_;
+  }
 
   //////////////////////////////////////////////////////////////////////////////
-  // View logic
-  // callbacks (closures)
-  std::function<void()> addtask_show();
-  std::function<void()> addtask_hide();
-  std::function<void()> edittask_show();
-  std::function<void()> edittask_hide();
+  // UI State Access - Direct access to UI state manager
+  [[nodiscard]] UIState &ui_state() { return ui_state_; }
+  [[nodiscard]] const UIState &ui_state() const { return ui_state_; }
 
 private:
-  // model data (data structures)
-  TodoTracker model;
-  std::filesystem::path filepath;
+  // Core data
+  TodoTracker model_;
+  std::filesystem::path filepath_;
 
-  // view model data (ui state)
-  std::string addtask_input_text;         // the text for a new task
-  std::string edittask_input_text;        // the text for editing a task
-  std::vector<Task> filtered_tasks;       // set of tasks (filter(s) applied)
-  std::vector<std::string> tasks_entries; // tasks displayed in the menu
-  std::int32_t selected_task_idx;         // the currented selected task
+  // View state
+  UIState ui_state_;
+  std::vector<Task> filtered_tasks_;
 
-  bool addtask_input_shown;
-  bool edittask_input_shown;
-
-  // helpers
+  // Helper methods
   void refresh_tasks();
-  std::string trim_string(const std::string &str);
-  bool is_selected_task_valid();
+  [[nodiscard]] static std::string trim(std::string_view str);
 };
 
 #endif // INCLUDE_INC_TODO_VIEWMODEL_H_
