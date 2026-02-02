@@ -1,5 +1,4 @@
 #include <filesystem>
-#include <functional>
 #include <iostream>
 
 #include "ftxui/component/component.hpp"
@@ -11,52 +10,53 @@
 #include "task.h"
 #include "todo_viewmodel.h"
 
+// Bring FTXUI names into scope, but Task type is already defined in task.h
 using namespace ftxui;
+using TaskStatus = ::Task::Status;
 
-constexpr std::string logger_name = "logger";
+namespace {
+constexpr const char *logger_name = "logger";
+constexpr int modal_min_width = 80;
+} // namespace
 
+/// @brief Creates the main task list component
 Component MainComponent(TodoViewModel &tvm) {
-  // define the menulist of task items
-  // the entries are defined via const reference, and the index is a mutable ref
-  auto tasklist = Menu(&tvm.get_task_entries_const(), &tvm.get_selected_task());
+  auto &ui = tvm.ui_state();
+  
+  // Task list menu - entries and selection index are managed by UI state
+  auto tasklist = Menu(&ui.task_entries(), &ui.selected_index());
 
-  // list of components in the main screen
   auto component = Container::Vertical({tasklist});
 
-  // add a renderer to the main screen
-  component |= Renderer([&](Element inner) {
-    Elements elems = {
-        window(text("Tasks"), inner),
-    };
-
-    return window(text("Task Tracker") | center, vbox(elems));
+  // Add rendering layer
+  component |= Renderer([](Element inner) {
+    return window(text("Task Tracker") | center,
+                  vbox({window(text("Tasks"), inner)}));
   });
 
   return component;
 }
 
+/// @brief Creates the "Add Task" modal component
 Component AddTaskComponent(TodoViewModel &tvm) {
+  auto &ui = tvm.ui_state();
+  
   auto input_options = InputOption::Spacious();
   input_options.multiline = false;
   input_options.on_enter = [&tvm] { tvm.add_task(); };
 
-  auto text_field = Input(&tvm.get_addtask_input_text(), input_options);
+  auto text_field = Input(&ui.add_task_input(), input_options);
 
-  auto component = Container::Vertical({
-      text_field,
+  auto component = Container::Vertical({text_field});
+
+  component |= Renderer([](Element inner) {
+    return vbox({text("Enter the task"), inner}) |
+           size(WIDTH, GREATER_THAN, modal_min_width) | border;
   });
 
-  component |= Renderer([&](Element inner) {
-    return vbox({
-               text("Enter the task"),
-               inner,
-           }) |
-           size(WIDTH, GREATER_THAN, 80) | border;
-  });
-
-  component |= CatchEvent([&tvm](Event event) {
+  component |= CatchEvent([&ui](Event event) {
     if (event == Event::Escape) {
-      tvm.addtask_hide()();
+      ui.hide_add_task_modal();
       return true;
     }
     return false;
@@ -65,28 +65,26 @@ Component AddTaskComponent(TodoViewModel &tvm) {
   return component;
 }
 
+/// @brief Creates the "Edit Task" modal component
 Component EditTaskComponent(TodoViewModel &tvm) {
+  auto &ui = tvm.ui_state();
+  
   auto input_options = InputOption::Spacious();
   input_options.multiline = false;
   input_options.on_enter = [&tvm] { tvm.update_task(); };
 
-  auto text_field = Input(&tvm.get_edittask_input_text(), input_options);
+  auto text_field = Input(&ui.edit_task_input(), input_options);
 
-  auto component = Container::Vertical({
-      text_field,
+  auto component = Container::Vertical({text_field});
+
+  component |= Renderer([](Element inner) {
+    return vbox({text("Edit the task"), inner}) |
+           size(WIDTH, GREATER_THAN, modal_min_width) | border;
   });
 
-  component |= Renderer([&](Element inner) {
-    return vbox({
-               text("Edit the task"),
-               inner,
-           }) |
-           size(WIDTH, GREATER_THAN, 80) | border;
-  });
-
-  component |= CatchEvent([&tvm](Event event) {
+  component |= CatchEvent([&ui](Event event) {
     if (event == Event::Escape) {
-      tvm.edittask_hide()();
+      ui.hide_edit_task_modal();
       return true;
     }
     return false;
@@ -138,6 +136,7 @@ int main(int argc, const char *argv[]) {
 
   // Create the view model that will mediate data between the models and views
   TodoViewModel tvm(filepath);
+  auto &ui = tvm.ui_state();
   spdlog::get(logger_name)
       ->info("Initialized view model from {}", filepath.string());
   spdlog::get(logger_name)->flush();
@@ -145,46 +144,40 @@ int main(int argc, const char *argv[]) {
   // Instanciate the main and modal components:
   auto main_component = MainComponent(tvm);
 
-  main_component |= CatchEvent([&tvm, &screen](Event event) {
+  main_component |= CatchEvent([&tvm, &ui, &screen](Event event) {
     if (event == Event::d) {
       spdlog::get(logger_name)
-          ->debug("Key [d] Deleting selected task: {}.",
-                  tvm.get_selected_task_const());
+          ->debug("Key [d] Deleting selected task: {}.", ui.selected_index());
       tvm.delete_selected_task();
       return true;
     }
     if (event == Event::e) {
       spdlog::get(logger_name)
-          ->debug("Key [e] Editing selected task: {}.",
-                  tvm.get_selected_task_const());
+          ->debug("Key [e] Editing selected task: {}.", ui.selected_index());
 
-      // fill in the edit field
-      auto ts = tvm.get_tasks();
-      auto idx = tvm.get_selected_task_const();
-      if (not ts.empty()) {
-        tvm.get_edittask_input_text() = ts.at(idx).getDesc();
+      // Fill in the edit field with current task description
+      if (auto task = tvm.get_selected_task()) {
+        ui.edit_task_input() = task->getDesc();
       }
 
-      tvm.edittask_show()();
+      ui.show_edit_task_modal();
       return true;
     }
     if (event == Event::i) {
       spdlog::get(logger_name)
-          ->debug("Key [i] Marking task in-progress: {}",
-                  tvm.get_selected_task_const());
-      tvm.mark_task(::Task::Status::InProgress);
+          ->debug("Key [i] Marking task in-progress: {}", ui.selected_index());
+      tvm.mark_selected_task(TaskStatus::InProgress);
       return true;
     }
     if (event == Event::m) {
       spdlog::get(logger_name)
-          ->debug("Key [m] Marking task complete: {}",
-                  tvm.get_selected_task_const());
-      tvm.mark_task(::Task::Status::Done);
+          ->debug("Key [m] Marking task complete: {}", ui.selected_index());
+      tvm.mark_selected_task(TaskStatus::Done);
       return true;
     }
     if (event == Event::n) {
       spdlog::get(logger_name)->debug("Key [n] Showing 'add task' modal.");
-      tvm.addtask_show()();
+      ui.show_add_task_modal();
       return true;
     }
     if (event == Event::q) {
@@ -194,9 +187,8 @@ int main(int argc, const char *argv[]) {
     }
     if (event == Event::t) {
       spdlog::get(logger_name)
-          ->debug("Key [t] Marking task todo: {}",
-                  tvm.get_selected_task_const());
-      tvm.mark_task(::Task::Status::ToDo);
+          ->debug("Key [t] Marking task todo: {}", ui.selected_index());
+      tvm.mark_selected_task(TaskStatus::ToDo);
       return true;
     }
     return false;
@@ -206,9 +198,9 @@ int main(int argc, const char *argv[]) {
   // window. The |modal_shown| boolean controls whether the modal is shown or
   // not.
   main_component |=
-      Modal(AddTaskComponent(tvm), &tvm.get_addtask_input_shown());
+      Modal(AddTaskComponent(tvm), &ui.add_task_modal_shown());
   main_component |=
-      Modal(EditTaskComponent(tvm), &tvm.get_edittask_input_shown());
+      Modal(EditTaskComponent(tvm), &ui.edit_task_modal_shown());
   spdlog::get(logger_name)->debug("Added modal component successfuly.");
 
   screen.Loop(main_component);
