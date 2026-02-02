@@ -1,0 +1,7 @@
+add_test([=[TodoTrackerTest.isEmpty]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_todo [==[--gtest_filter=TodoTrackerTest.isEmpty]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TodoTrackerTest.isEmpty]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[TodoTrackerTest.Serialize]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_todo [==[--gtest_filter=TodoTrackerTest.Serialize]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TodoTrackerTest.Serialize]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[TodoTrackerTest.Deserialize]=]  /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests/test_todo [==[--gtest_filter=TodoTrackerTest.Deserialize]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TodoTrackerTest.Deserialize]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/task-tracker/task-tracker/_codeql_build_dir/tests SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  test_todo_TESTS TodoTrackerTest.isEmpty TodoTrackerTest.Serialize TodoTrackerTest.Deserialize)
