@@ -61,13 +61,22 @@ int main(int argc, char *argv[]) {
   mark_command.add_argument("id")
       .help("The id of the task to be marked")
       .scan<'u', std::uint32_t>();
-  mark_command.add_argument("status").help("The status to mark the task");
+  mark_command.add_argument("status")
+      .help("The status to mark the task")
+      .choices("d",
+               "done"
+               "i",
+               "in-progress", "t", "todo");
 
   // list subparser
   argparse::ArgumentParser list_command("list");
   list_command.add_description("list all tasks");
   list_command.add_argument("-f", "--filter")
       .help("The status to filer the tasks by")
+      .choices("d",
+               "done"
+               "i",
+               "in-progress", "none", "t", "todo")
       .default_value("none");
 
   program.add_subparser(add_command);
