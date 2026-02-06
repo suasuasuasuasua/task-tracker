@@ -10,39 +10,24 @@
 
 using Status = Task::Status;
 
-// Portable implementation of timegm (converts tm in UTC to time_t)
+// Portable implementation of timegm for Linux/macOS (converts tm in UTC to time_t)
 // This avoids timezone issues by treating the tm struct as UTC
 static std::time_t timegm_portable(std::tm *tm) {
   // Save and set timezone to UTC
   const char* tz = std::getenv("TZ");
   
-#ifdef _WIN32
-  _putenv_s("TZ", "UTC");
-  _tzset();
-#else
   setenv("TZ", "UTC", 1);
   tzset();
-#endif
   
   std::time_t ret = std::mktime(tm);
   
   // Restore original timezone
   if (tz) {
-#ifdef _WIN32
-    _putenv_s("TZ", tz);
-    _tzset();
-#else
     setenv("TZ", tz, 1);
     tzset();
-#endif
   } else {
-#ifdef _WIN32
-    _putenv_s("TZ", "");
-    _tzset();
-#else
     unsetenv("TZ");
     tzset();
-#endif
   }
   
   return ret;
