@@ -1,10 +1,11 @@
 BUILD_DIR=build
 CMAKE_BUILD_TYPE=Release # or Debug, RelWithDebInfo, and MinSizeRel
 CMAKE_INSTALL_PREFIX=/usr/local/bin # or ~/.local
+PARALLEL= # empty for all cores or speciy integer
 
 build: setup
 	@printf "\nBuilding...\n"
-	cmake --build  ${BUILD_DIR} --parallel
+	cmake --build  ${BUILD_DIR} --parallel ${PARALLEL}
 
 setup:
 	@printf "\nSetting up...\n"
