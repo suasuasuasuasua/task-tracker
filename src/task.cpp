@@ -2,12 +2,51 @@
 
 #include <chrono>
 #include <cstdint>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 using Status = Task::Status;
+
+// Portable implementation of timegm (converts tm in UTC to time_t)
+// This avoids timezone issues by treating the tm struct as UTC
+static std::time_t timegm_portable(std::tm *tm) {
+  // Save and set timezone to UTC
+  const char* tz = std::getenv("TZ");
+  
+#ifdef _WIN32
+  _putenv_s("TZ", "UTC");
+  _tzset();
+#else
+  setenv("TZ", "UTC", 1);
+  tzset();
+#endif
+  
+  std::time_t ret = std::mktime(tm);
+  
+  // Restore original timezone
+  if (tz) {
+#ifdef _WIN32
+    _putenv_s("TZ", tz);
+    _tzset();
+#else
+    setenv("TZ", tz, 1);
+    tzset();
+#endif
+  } else {
+#ifdef _WIN32
+    _putenv_s("TZ", "");
+    _tzset();
+#else
+    unsetenv("TZ");
+    tzset();
+#endif
+  }
+  
+  return ret;
+}
 
 std::uint32_t Task::getUid() const { return uid; }
 std::string Task::getDesc() const { return desc; }
@@ -37,15 +76,23 @@ void Task::setUpdatedDate(
 json Task::serialize() const {
   json data;
 
-  std::string c_date = std::format("{:%Y%m%d%H%M}", creation_date);
-  std::string m_date = std::format("{:%Y%m%d%H%M}", updated_date);
+  // Convert to time_t and format as UTC
+  auto c_time_t = std::chrono::system_clock::to_time_t(creation_date);
+  auto m_time_t = std::chrono::system_clock::to_time_t(updated_date);
+  
+  std::tm c_tm = *std::gmtime(&c_time_t);
+  std::tm m_tm = *std::gmtime(&m_time_t);
+  
+  std::ostringstream c_oss, m_oss;
+  c_oss << std::put_time(&c_tm, "%Y%m%d%H%M");
+  m_oss << std::put_time(&m_tm, "%Y%m%d%H%M");
 
   data = {
       {"uid", uid},
       {"desc", desc},
       {"status", Stat2String.at(status)},
-      {"creation_date", c_date},
-      {"updated_date", m_date},
+      {"creation_date", c_oss.str()},
+      {"updated_date", m_oss.str()},
   };
 
   return data;
@@ -56,13 +103,17 @@ Task Task::deserialize(const json &data) {
                 String2Stat.at(data["status"]));
 
   // Parse creation date using std::get_time (C++11 compatible)
+  // Parse as UTC to match serialization
   std::istringstream c_iss{data["creation_date"].get<std::string>()};
   std::tm c_tm = {};
   c_iss >> std::get_time(&c_tm, "%Y%m%d%H%M");
   if (c_iss.fail()) {
     throw std::runtime_error("Failed to parse creation_date");
   }
-  auto c_time_t = std::mktime(&c_tm);
+  
+  // Use portable UTC time conversion
+  c_tm.tm_isdst = 0;
+  auto c_time_t = timegm_portable(&c_tm);
   if (c_time_t == -1) {
     throw std::runtime_error("Invalid creation_date value");
   }
@@ -70,13 +121,17 @@ Task Task::deserialize(const json &data) {
       std::chrono::system_clock::from_time_t(c_time_t);
 
   // Parse updated date using std::get_time (C++11 compatible)
+  // Parse as UTC to match serialization
   std::istringstream m_iss{data["updated_date"].get<std::string>()};
   std::tm m_tm = {};
   m_iss >> std::get_time(&m_tm, "%Y%m%d%H%M");
   if (m_iss.fail()) {
     throw std::runtime_error("Failed to parse updated_date");
   }
-  auto m_time_t = std::mktime(&m_tm);
+  
+  // Use portable UTC time conversion
+  m_tm.tm_isdst = 0;
+  auto m_time_t = timegm_portable(&m_tm);
   if (m_time_t == -1) {
     throw std::runtime_error("Invalid updated_date value");
   }
