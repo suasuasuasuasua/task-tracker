@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <nlohmann/json.hpp>
+#include <optional>
 
 #include "task.h"
 
@@ -23,7 +24,7 @@ public:
   void to_json(const std::filesystem::path &filepath);
 
   std::uint32_t add_task(const std::string &desc);
-  void list_tasks(Task::Status status, bool filter = true) const;
+  void list_tasks(std::optional<Task::Status> status) const;
   void mark_task(std::uint32_t uid, Task::Status status);
   void update_task(std::uint32_t uid, const std::string &desc);
   void delete_task(std::uint32_t uid);
