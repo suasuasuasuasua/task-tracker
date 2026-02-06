@@ -87,7 +87,6 @@ jobs:
         run: |
           direnv allow .
           direnv export gha > "$GITHUB_ENV"
-          steps:
       - uses: actions/download-artifact@v5
         with:
           name: build
