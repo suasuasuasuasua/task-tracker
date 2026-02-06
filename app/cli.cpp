@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   // update subparser
   argparse::ArgumentParser update_command("update");
   update_command.add_description("update a task");
-  update_command.add_argument("id").scan<'i', std::uint32_t>();
+  update_command.add_argument("id").scan<'u', std::uint32_t>();
   update_command.add_argument("desc").help(
       "The updated description of the task");
 
@@ -53,14 +53,14 @@ int main(int argc, char *argv[]) {
   delete_command.add_description("delete a task");
   delete_command.add_argument("id")
       .help("The id of the task to be deleted")
-      .scan<'i', std::uint32_t>();
+      .scan<'u', std::uint32_t>();
 
   // mark subparser
   argparse::ArgumentParser mark_command("mark");
   mark_command.add_description("mark a task");
   mark_command.add_argument("id")
       .help("The id of the task to be marked")
-      .scan<'i', std::uint32_t>();
+      .scan<'u', std::uint32_t>();
   mark_command.add_argument("status").help("The status to mark the task");
 
   // list subparser
