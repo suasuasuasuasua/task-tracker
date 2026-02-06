@@ -4,6 +4,7 @@ pkgs.mkShell.override { inherit (pkgs.llvmPackages_21) stdenv; } {
   buildInputs = self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks-check.enabledPackages;
 
   packages = with pkgs; [
+    argparse
     cmake
     ftxui
     git

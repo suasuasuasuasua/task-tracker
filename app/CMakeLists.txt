@@ -1,10 +1,13 @@
 add_executable(task-cli cli.cpp)
-target_link_libraries(task-cli PRIVATE todo::todo)
+target_link_libraries(
+  task-cli
+  PRIVATE todo::todo
+  PRIVATE argparse)
 
 add_executable(task-tui tui.cpp)
 target_link_libraries(
   task-tui
-  PUBLIC todo::todo
+  PRIVATE todo::todo
   PRIVATE spdlog::spdlog
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom

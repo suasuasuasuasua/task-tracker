@@ -54,11 +54,16 @@ include(FetchContent)
 if(DEFINED ENV{has_nix})
   message("Using nix deps")
   find_package(GTest 1.17.0 REQUIRED)
+  find_package(argparse 3.2 REQUIRED)
   find_package(ftxui 6.1.9 REQUIRED)
   find_package(nlohmann_json 3.12.0 REQUIRED)
   find_package(spdlog 1.15.3 REQUIRED)
 else()
   message("Fetching deps from git")
+  FetchContent_Declare(
+    argparse
+    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+    GIT_TAG v3.2)
   FetchContent_Declare(
     ftxui
     GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
@@ -75,7 +80,7 @@ else()
     spdlog
     URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.3.tar.gz)
 
-  FetchContent_MakeAvailable(ftxui googletest json spdlog)
+  FetchContent_MakeAvailable(argparse ftxui googletest json spdlog)
 endif()
 
 add_subdirectory(app)
