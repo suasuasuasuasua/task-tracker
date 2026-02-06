@@ -63,20 +63,14 @@ int main(int argc, char *argv[]) {
       .scan<'u', std::uint32_t>();
   mark_command.add_argument("status")
       .help("The status to mark the task")
-      .choices("d",
-               "done"
-               "i",
-               "in-progress", "t", "todo");
+      .choices("d", "done", "i", "in-progress", "t", "todo");
 
   // list subparser
   argparse::ArgumentParser list_command("list");
   list_command.add_description("list all tasks");
-  list_command.add_argument("-f", "--filter")
+  list_command.add_argument("filter")
       .help("The status to filer the tasks by")
-      .choices("d",
-               "done"
-               "i",
-               "in-progress", "none", "t", "todo")
+      .choices("d", "done", "i", "in-progress", "none", "t", "todo")
       .default_value("none");
 
   program.add_subparser(add_command);
@@ -158,7 +152,7 @@ int main(int argc, char *argv[]) {
   // List
   if (program.is_subcommand_used("list")) {
     try {
-      auto filter_str = list_command.get("-f");
+      auto filter_str = list_command.get<std::string>("filter");
       std::optional<Task::Status> status;
       if (filter_str == "none") {
         status = std::nullopt;
