@@ -53,7 +53,7 @@ jobs:
           submodules: recursive
       - name: Install deps
         run: |
-          apt install cmake \
+          sudo apt install cmake \
             clang \
             git \
             ninja
