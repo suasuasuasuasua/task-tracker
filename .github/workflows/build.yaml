@@ -91,6 +91,8 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build
-      - name: Build and Test
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Test
         run: |
           make test
