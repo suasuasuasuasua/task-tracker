@@ -8,13 +8,14 @@
 #include "task.h"
 #include "todo.h"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+#ifndef VERSION
+#define VERSION "unknown version"
+#endif
 
 using json = nlohmann::json;
 
 int main(int argc, char *argv[]) {
-  const std::string version = TOSTRING(VERSION);
+  const std::string version = VERSION;
 
   argparse::ArgumentParser program("task-cli", version);
   program.add_argument("-h", "--help").help("print help message").flag();
