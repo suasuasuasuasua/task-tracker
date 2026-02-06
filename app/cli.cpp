@@ -53,7 +53,8 @@ int main(int argc, char *argv[]) {
   delete_command.add_description("delete a task");
   delete_command.add_argument("id")
       .help("The id of the task to be deleted")
-      .scan<'u', std::uint32_t>();
+      .scan<'u', std::uint32_t>()
+      .remaining();
 
   // mark subparser
   argparse::ArgumentParser mark_command("mark");
@@ -128,9 +129,11 @@ int main(int argc, char *argv[]) {
   // Delete
   if (program.is_subcommand_used("delete")) {
     try {
-      auto uid = delete_command.get<std::uint32_t>("id");
-      todolist.delete_task(uid);
-      std::cout << std::format("Task deleted successfully (ID: {})\n", uid);
+      auto uids = delete_command.get<std::list<std::uint32_t>>("id");
+      for (const auto &uid : uids) {
+        todolist.delete_task(uid);
+        std::cout << std::format("Task deleted successfully (ID: {})\n", uid);
+      }
     } catch (std::logic_error &e) {
       std::cout << "Something went wrong: " << e.what() << std::endl;
     }
