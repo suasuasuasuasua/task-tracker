@@ -43,7 +43,7 @@ jobs:
           name: bin
           path: build/bin
   build-no-nix:
-    name: Build with no nix
+    name: Build with no Nix
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
