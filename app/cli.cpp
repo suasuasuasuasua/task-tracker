@@ -8,10 +8,15 @@
 #include "task.h"
 #include "todo.h"
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 using json = nlohmann::json;
 
 int main(int argc, char *argv[]) {
-  argparse::ArgumentParser program("task-cli");
+  const std::string version = TOSTRING(VERSION);
+
+  argparse::ArgumentParser program("task-cli", version);
   program.add_argument("-h", "--help").help("print help message").flag();
   program.add_argument("-v", "--verbose").help("enable verbose mode").flag();
 

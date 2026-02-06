@@ -1,5 +1,6 @@
 add_executable(task-cli cli.cpp)
 target_link_libraries(task-cli PRIVATE todo::todo)
+target_compile_definitions(task-cli PRIVATE VERSION=${PROJECT_VERSION})
 
 add_executable(task-tui tui.cpp)
 target_link_libraries(
