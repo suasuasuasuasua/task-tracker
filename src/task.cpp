@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 using Status = Task::Status;
 
@@ -58,7 +59,13 @@ Task Task::deserialize(const json &data) {
   std::istringstream c_iss{data["creation_date"].get<std::string>()};
   std::tm c_tm = {};
   c_iss >> std::get_time(&c_tm, "%Y%m%d%H%M");
+  if (c_iss.fail()) {
+    throw std::runtime_error("Failed to parse creation_date");
+  }
   auto c_time_t = std::mktime(&c_tm);
+  if (c_time_t == -1) {
+    throw std::runtime_error("Invalid creation_date value");
+  }
   std::chrono::time_point<std::chrono::system_clock> c_date =
       std::chrono::system_clock::from_time_t(c_time_t);
 
@@ -66,7 +73,13 @@ Task Task::deserialize(const json &data) {
   std::istringstream m_iss{data["updated_date"].get<std::string>()};
   std::tm m_tm = {};
   m_iss >> std::get_time(&m_tm, "%Y%m%d%H%M");
+  if (m_iss.fail()) {
+    throw std::runtime_error("Failed to parse updated_date");
+  }
   auto m_time_t = std::mktime(&m_tm);
+  if (m_time_t == -1) {
+    throw std::runtime_error("Invalid updated_date value");
+  }
   std::chrono::time_point<std::chrono::system_clock> m_date =
       std::chrono::system_clock::from_time_t(m_time_t);
 
