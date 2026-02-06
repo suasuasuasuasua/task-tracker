@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 
@@ -53,13 +54,21 @@ Task Task::deserialize(const json &data) {
   auto t = Task(data["uid"].get<std::uint32_t>(), data["desc"],
                 String2Stat.at(data["status"]));
 
+  // Parse creation date using std::get_time (C++11 compatible)
   std::istringstream c_iss{data["creation_date"].get<std::string>()};
-  std::chrono::time_point<std::chrono::system_clock> c_date;
-  c_iss >> std::chrono::parse("%Y%m%d%H%M", c_date);
+  std::tm c_tm = {};
+  c_iss >> std::get_time(&c_tm, "%Y%m%d%H%M");
+  auto c_time_t = std::mktime(&c_tm);
+  std::chrono::time_point<std::chrono::system_clock> c_date =
+      std::chrono::system_clock::from_time_t(c_time_t);
 
+  // Parse updated date using std::get_time (C++11 compatible)
   std::istringstream m_iss{data["updated_date"].get<std::string>()};
-  std::chrono::time_point<std::chrono::system_clock> m_date;
-  m_iss >> std::chrono::parse("%Y%m%d%H%M", m_date);
+  std::tm m_tm = {};
+  m_iss >> std::get_time(&m_tm, "%Y%m%d%H%M");
+  auto m_time_t = std::mktime(&m_tm);
+  std::chrono::time_point<std::chrono::system_clock> m_date =
+      std::chrono::system_clock::from_time_t(m_time_t);
 
   t.setCreationDate(c_date);
   t.setUpdatedDate(m_date);
