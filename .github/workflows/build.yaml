@@ -30,11 +30,11 @@ jobs:
           direnv export gha > "$GITHUB_ENV"
       - name: Build
         run: |
-          make build
+          make build CMAKE_CXX_CLANG_TIDY=clang-tidy
       - name: Upload build artifact
         uses: actions/upload-artifact@v6
         with:
-          name: build-output
+          name: bin
           path: build/bin
   build-nix:
     name: Build with Nix
