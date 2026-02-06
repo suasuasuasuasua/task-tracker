@@ -43,7 +43,7 @@ jobs:
           name: bin
           path: build/bin
   build-no-nix:
-    name: Build
+    name: Build with no nix
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -56,7 +56,7 @@ jobs:
           sudo apt install cmake \
             clang \
             git \
-            ninja
+            ninja-build
       - name: Build
         run: |
           make build CMAKE_CXX_CLANG_TIDY=clang-tidy
