@@ -1,8 +1,5 @@
 add_executable(task-cli cli.cpp)
-target_link_libraries(
-  task-cli
-  PRIVATE todo::todo
-  PRIVATE argparse)
+target_link_libraries(task-cli PRIVATE todo::todo)
 
 add_executable(task-tui tui.cpp)
 target_link_libraries(
