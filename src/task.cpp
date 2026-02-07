@@ -58,9 +58,11 @@ Task Task::deserialize(const json &data) {
 
   // Deserialize timestamps from duration count (nanoseconds since epoch)
   using duration_type = std::chrono::system_clock::duration;
-  auto c_duration = duration_type(data["creation_date"].get<duration_type::rep>());
-  auto m_duration = duration_type(data["updated_date"].get<duration_type::rep>());
-  
+  auto c_duration =
+      duration_type(data["creation_date"].get<duration_type::rep>());
+  auto m_duration =
+      duration_type(data["updated_date"].get<duration_type::rep>());
+
   std::chrono::time_point<std::chrono::system_clock> c_date(c_duration);
   std::chrono::time_point<std::chrono::system_clock> m_date(m_duration);
 
@@ -75,10 +77,10 @@ std::ostream &operator<<(std::ostream &out, const Task &c) {
   // Format dates in local time for display
   auto c_time_t = std::chrono::system_clock::to_time_t(c.creation_date);
   auto u_time_t = std::chrono::system_clock::to_time_t(c.updated_date);
-  
+
   std::tm c_tm = *std::localtime(&c_time_t);
   std::tm u_tm = *std::localtime(&u_time_t);
-  
+
   out << c.uid << ". " << c.desc << " [" << Task::Stat2String.at(c.status)
       << "] (Created: " << std::put_time(&c_tm, "%Y-%m-%d %H:%M")
       << ", Updated: " << std::put_time(&u_tm, "%Y-%m-%d %H:%M") << ")";
