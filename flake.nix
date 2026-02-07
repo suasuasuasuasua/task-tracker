@@ -36,6 +36,7 @@
         import ./pkgs {
           inherit self version;
           inherit (pkgs)
+            argparse
             cmake
             ftxui
             gtest

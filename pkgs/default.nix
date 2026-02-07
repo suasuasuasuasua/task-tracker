@@ -1,4 +1,5 @@
 {
+  argparse,
   clang-tools,
   cmake,
   ftxui,
@@ -15,6 +16,7 @@ stdenv.mkDerivation {
   pname = "task-cli";
   src = self;
   nativeBuildInputs = [
+    argparse
     clang-tools
     cmake
     ftxui

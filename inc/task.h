@@ -39,9 +39,9 @@ public:
   friend std::ostream &operator<<(std::ostream &out, const Task &t);
 
   inline static const std::unordered_map<std::string, Status> String2Stat = {
-      {"todo", Status::ToDo},
-      {"in-progress", Status::InProgress},
-      {"done", Status::Done},
+      {"d", Status::Done},       {"done", Status::Done},
+      {"i", Status::InProgress}, {"in-progress", Status::InProgress},
+      {"t", Status::ToDo},       {"todo", Status::ToDo},
   };
 
   inline static const std::unordered_map<Status, std::string> Stat2String = {

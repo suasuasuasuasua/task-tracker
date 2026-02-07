@@ -27,6 +27,7 @@ Currently, task-tracker is building against these dependencies. See `shell.nix`
 for more information.
 
 ```text
+argparse==3.2
 clang==21.1.7
 cmake==4.1.2
 ftxui==6.1.9

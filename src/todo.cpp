@@ -1,8 +1,10 @@
 #include "todo.h"
 
 #include <algorithm>
+#include <format>
 #include <fstream>
 #include <iostream>
+#include <optional>
 
 json TodoTracker::serialize() const {
   json data;
@@ -80,18 +82,18 @@ std::uint32_t TodoTracker::add_task(const std::string &desc) {
   return next_id;
 }
 
-void TodoTracker::list_tasks(Task::Status status, bool filter) const {
-  for (const auto &t :
-       tasks
-           // grab the tasks (values) from the map
-           | std::views::values
-           // filter tasks for the status
-           | std::ranges::views::filter([&status, filter](const Task &t) {
-               // short circut: if there is no filter, then accept list all
-               // tasks else, if there is a filter, then check if it's the
-               // correct status
-               return (not filter) or t.getStatus() == status;
-             })) {
+void TodoTracker::list_tasks(std::optional<Task::Status> status) const {
+  auto filt_tasks =
+      tasks | std::views::values |
+      std::ranges::views::filter([status](const Task &t) {
+        return status == std::nullopt or t.getStatus() == status.value();
+      });
+
+  if (filt_tasks.empty()) {
+    std::cout << "No tasks found\n";
+  }
+
+  for (const auto &t : filt_tasks) {
     std::cout << t << "\n";
   }
 }
