@@ -63,8 +63,8 @@ private:
   std::uint32_t uid;
   std::string desc;
   Status status;
-  std::chrono::time_point<std::chrono::system_clock> creation_date;
-  std::chrono::time_point<std::chrono::system_clock> updated_date;
+  std::chrono::system_clock::time_point creation_date;
+  std::chrono::system_clock::time_point updated_date;
 };
 
 #endif // INCLUDE_INC_TASK_H_

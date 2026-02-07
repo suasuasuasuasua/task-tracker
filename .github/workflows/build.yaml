@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # required for `nix flake show`
+          fetch-depth: 0
           submodules: recursive
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -42,6 +42,24 @@ jobs:
         with:
           name: bin
           path: build/bin
+  build-no-nix:
+    name: Build with no Nix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Install deps
+        run: |
+          sudo apt install cmake \
+            clang \
+            git \
+            ninja-build
+      - name: Build and test
+        run: |
+          make test CMAKE_CXX_CLANG_TIDY=clang-tidy
   build-nix:
     name: Build with Nix
     runs-on: ubuntu-latest
@@ -49,7 +67,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # required for `nix flake show`
+          fetch-depth: 0
           submodules: recursive
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -74,7 +92,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # required for `nix flake show`
+          fetch-depth: 0
           submodules: recursive
       - name: Install Nix
         uses: cachix/install-nix-action@v31

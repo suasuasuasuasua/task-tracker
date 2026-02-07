@@ -26,10 +26,11 @@ TEST(TodoTrackerTest, Serialize) {
   auto time = std::chrono::system_clock::now();
   auto t0 = Task(0, "Do the laundry", Task::Status::ToDo, time, time);
   auto t1 = Task(1, "Do my homework", Task::Status::InProgress, time, time);
+  auto duration_count = time.time_since_epoch().count();
+
   todolist.setTasks(
       {std::make_pair(t0.getUid(), t0), std::make_pair(t1.getUid(), t1)});
 
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
   json data = {
       {"title", "TodoList"},
       {"number_of_tasks", 2},
@@ -38,15 +39,15 @@ TEST(TodoTrackerTest, Serialize) {
                         {"uid", 0},
                         {"desc", "Do the laundry"},
                         {"status", "todo"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", duration_count},
+                        {"updated_date", duration_count},
                     },
                     {
                         {"uid", 1},
                         {"desc", "Do my homework"},
                         {"status", "in-progress"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", duration_count},
+                        {"updated_date", duration_count},
                     },
                 })},
   };
@@ -56,7 +57,8 @@ TEST(TodoTrackerTest, Serialize) {
 
 TEST(TodoTrackerTest, Deserialize) {
   auto time = std::chrono::system_clock::now();
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
+  auto duration_count = time.time_since_epoch().count();
+
   json data = {
       {"title", "TodoList"},
       {"number_of_tasks", 2},
@@ -65,15 +67,15 @@ TEST(TodoTrackerTest, Deserialize) {
                         {"uid", 0},
                         {"desc", "Do the laundry"},
                         {"status", "todo"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", duration_count},
+                        {"updated_date", duration_count},
                     },
                     {
                         {"uid", 1},
                         {"desc", "Do my homework"},
                         {"status", "in-progress"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", duration_count},
+                        {"updated_date", duration_count},
                     },
                 })},
   };
