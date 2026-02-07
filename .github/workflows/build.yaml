@@ -57,9 +57,9 @@ jobs:
             clang \
             git \
             ninja-build
-      - name: Build
+      - name: Build and test
         run: |
-          make build CMAKE_CXX_CLANG_TIDY=clang-tidy
+          make test CMAKE_CXX_CLANG_TIDY=clang-tidy
   build-nix:
     name: Build with Nix
     runs-on: ubuntu-latest
@@ -106,29 +106,6 @@ jobs:
         run: |
           direnv allow .
           direnv export gha > "$GITHUB_ENV"
-      - uses: actions/download-artifact@v5
-        with:
-          name: build
-          path: build
-      - name: Test
-        run: |
-          make test
-  test-no-nix:
-    name: Test with no Nix
-    runs-on: ubuntu-latest
-    needs: build-no-nix
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          submodules: recursive
-      - name: Install deps
-        run: |
-          sudo apt install cmake \
-            clang \
-            git \
-            ninja-build
       - uses: actions/download-artifact@v5
         with:
           name: build
