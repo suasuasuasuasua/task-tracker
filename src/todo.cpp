@@ -1,7 +1,6 @@
 #include "todo.h"
 
 #include <algorithm>
-#include <format>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -86,7 +85,7 @@ void TodoTracker::list_tasks(std::optional<Task::Status> status) const {
   auto filt_tasks =
       tasks | std::views::values |
       std::ranges::views::filter([status](const Task &t) {
-        return status == std::nullopt or t.getStatus() == status.value();
+        return status == std::nullopt or t.status == status.value();
       });
 
   if (filt_tasks.empty()) {
@@ -106,8 +105,8 @@ void TodoTracker::mark_task(std::uint32_t uid, Task::Status status) {
     return;
   }
 
-  task_itr->second.setStatus(status);
-  task_itr->second.setUpdatedDate(std::chrono::system_clock::now());
+  task_itr->second.status = status;
+  task_itr->second.updated_date = std::chrono::system_clock::now();
 }
 
 void TodoTracker::update_task(std::uint32_t uid, const std::string &desc) {
@@ -118,8 +117,8 @@ void TodoTracker::update_task(std::uint32_t uid, const std::string &desc) {
     return;
   }
 
-  task_itr->second.setDesc(desc);
-  task_itr->second.setUpdatedDate(std::chrono::system_clock::now());
+  task_itr->second.desc = desc;
+  task_itr->second.updated_date = std::chrono::system_clock::now();
 }
 
 void TodoTracker::delete_task(std::uint32_t uid) {

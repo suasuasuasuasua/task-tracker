@@ -22,9 +22,8 @@ void TodoViewModel::add_task() {
   refresh_tasks();
 
   // update the current selected task to the last inserted task
-  auto it =
-      std::find_if(filtered_tasks.cbegin(), filtered_tasks.cend(),
-                   [uid](const Task &task) { return task.getUid() == uid; });
+  auto it = std::find_if(filtered_tasks.cbegin(), filtered_tasks.cend(),
+                         [uid](const Task &task) { return task.uid == uid; });
   if (it != filtered_tasks.end()) {
     selected_task_idx =
         static_cast<std::int32_t>(std::distance(filtered_tasks.cbegin(), it));
@@ -43,7 +42,7 @@ void TodoViewModel::update_task() {
     return;
   }
 
-  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  auto uid = filtered_tasks.at(selected_task_idx).uid;
   model.update_task(uid, task_text);
 
   refresh_tasks();
@@ -55,7 +54,7 @@ void TodoViewModel::delete_selected_task() {
   }
 
   // get the task uid
-  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  auto uid = filtered_tasks.at(selected_task_idx).uid;
   model.delete_task(uid);
   refresh_tasks();
 
@@ -70,7 +69,7 @@ void TodoViewModel::mark_task(Task::Status status) {
     return;
   }
 
-  auto uid = filtered_tasks.at(selected_task_idx).getUid();
+  auto uid = filtered_tasks.at(selected_task_idx).uid;
   model.mark_task(uid, status);
   refresh_tasks();
 }

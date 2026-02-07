@@ -1,7 +1,7 @@
 #include <chrono>
+#include <nlohmann/json.hpp>
 #include <utility>
 
-#include "nlohmann/json.hpp"
 #include "task.h"
 #include "todo.h"
 #include "gtest/gtest.h"
@@ -28,8 +28,7 @@ TEST(TodoTrackerTest, Serialize) {
   auto t1 = Task(1, "Do my homework", Task::Status::InProgress, time, time);
   auto duration_count = time.time_since_epoch().count();
 
-  todolist.setTasks(
-      {std::make_pair(t0.getUid(), t0), std::make_pair(t1.getUid(), t1)});
+  todolist.setTasks({std::make_pair(t0.uid, t0), std::make_pair(t1.uid, t1)});
 
   json data = {
       {"title", "TodoList"},
