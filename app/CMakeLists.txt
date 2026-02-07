@@ -6,10 +6,7 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 add_executable(task-cli cli.cpp)
-target_link_libraries(task-cli PRIVATE todo::todo)
-if(NOT DEFINED ENV{has_nix})
-  target_link_libraries(task-cli PRIVATE argparse)
-endif()
+target_link_libraries(task-cli PRIVATE todo::todo argparse::argparse)
 target_compile_definitions(task-cli PRIVATE "-DVERSION=\"${GIT_COMMIT_HASH}\"")
 
 add_executable(task-tui tui.cpp)
