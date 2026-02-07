@@ -78,9 +78,9 @@ std::ostream &operator<<(std::ostream &out, const Task &c) {
   std::tm c_tm = *std::localtime(&c_time_t);
   std::tm u_tm = *std::localtime(&u_time_t);
 
-  out << std::format("{}. {} [{}]", c.uid, c.desc,
+  out << std::format("{}. {} [{}] ", c.uid, c.desc,
                      Task::Stat2String.at(c.status))
-      << "(Created: " << std::put_time(&c_tm, "%Y%m%d %H:%M")
-      << ", Updated: " << std::put_time(&u_tm, "%Y%m%d %H:%M") << ")";
+      << "(Created: " << std::put_time(&c_tm, "%c")
+      << ", Updated: " << std::put_time(&u_tm, "%c") << ")";
   return out;
 }
