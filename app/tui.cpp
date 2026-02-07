@@ -173,7 +173,7 @@ int main(int argc, const char *argv[]) {
       auto ts = tvm.get_tasks();
       auto idx = tvm.get_selected_task_const();
       if (not ts.empty()) {
-        tvm.get_edittask_input_text() = ts.at(idx).getDesc();
+        tvm.get_edittask_input_text() = ts.at(idx).desc;
       }
 
       tvm.edittask_show()();

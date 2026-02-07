@@ -9,7 +9,7 @@
 
 using json = nlohmann::json;
 
-class Task {
+struct Task {
 public:
   enum class Status { ToDo, InProgress, Done };
 
@@ -20,18 +20,6 @@ public:
            std::chrono::system_clock::now())
       : uid(uid), desc(desc), status(s), creation_date(creation_date),
         updated_date(updated_date) {}
-
-  std::uint32_t getUid() const;
-  std::string getDesc() const;
-  Status getStatus() const;
-  std::chrono::system_clock::time_point getCreationDate() const;
-  std::chrono::system_clock::time_point getUpdatedDate() const;
-
-  void setUid(std::uint32_t uid);
-  void setDesc(const std::string &desc);
-  void setStatus(Status task);
-  void setCreationDate(const std::chrono::system_clock::time_point &t);
-  void setUpdatedDate(const std::chrono::system_clock::time_point &t);
 
   json serialize() const;
   static Task deserialize(const json &data);
@@ -59,7 +47,6 @@ public:
       },
   };
 
-private:
   std::uint32_t uid;
   std::string desc;
   Status status;

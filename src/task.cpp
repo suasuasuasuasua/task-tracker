@@ -4,34 +4,8 @@
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 
 using Status = Task::Status;
-
-std::uint32_t Task::getUid() const { return uid; }
-std::string Task::getDesc() const { return desc; }
-Status Task::getStatus() const { return status; }
-std::chrono::time_point<std::chrono::system_clock>
-Task::getCreationDate() const {
-  return creation_date;
-}
-std::chrono::time_point<std::chrono::system_clock>
-Task::getUpdatedDate() const {
-  return updated_date;
-}
-
-void Task::setUid(std::uint32_t uid) { this->uid = uid; }
-void Task::setDesc(const std::string &desc) { this->desc = desc; }
-void Task::setStatus(Status status) { this->status = status; }
-
-void Task::setCreationDate(
-    const std::chrono::time_point<std::chrono::system_clock> &t) {
-  creation_date = t;
-}
-void Task::setUpdatedDate(
-    const std::chrono::time_point<std::chrono::system_clock> &t) {
-  updated_date = t;
-}
 
 json Task::serialize() const {
   json data;
@@ -60,11 +34,8 @@ Task Task::deserialize(const json &data) {
   auto m_duration =
       duration_type(data["updated_date"].get<duration_type::rep>());
 
-  std::chrono::system_clock::time_point c_date(c_duration);
-  std::chrono::system_clock::time_point m_date(m_duration);
-
-  t.setCreationDate(c_date);
-  t.setUpdatedDate(m_date);
+  t.creation_date = std::chrono::system_clock::time_point(c_duration);
+  t.updated_date = std::chrono::system_clock::time_point(m_duration);
 
   return t;
 }

@@ -11,16 +11,16 @@ namespace {
 TEST(TaskTest, Create) {
   auto time = std::chrono::system_clock::now();
   auto t = Task(0, "Get groceries", Task::Status::ToDo, time, time);
-  EXPECT_EQ(t.getStatus(), Task::Status::ToDo);
+  EXPECT_EQ(t.status, Task::Status::ToDo);
 
-  t.setStatus(Task::Status::InProgress);
-  EXPECT_EQ(t.getStatus(), Task::Status::InProgress);
+  t.status = Task::Status::InProgress;
+  EXPECT_EQ(t.status, Task::Status::InProgress);
 
-  t.setStatus(Task::Status::Done);
-  EXPECT_EQ(t.getStatus(), Task::Status::Done);
+  t.status = Task::Status::Done;
+  EXPECT_EQ(t.status, Task::Status::Done);
 
-  EXPECT_EQ(t.getCreationDate(), time);
-  EXPECT_EQ(t.getUpdatedDate(), time);
+  EXPECT_EQ(t.creation_date, time);
+  EXPECT_EQ(t.updated_date, time);
 }
 
 TEST(TaskTest, Serialize) {
