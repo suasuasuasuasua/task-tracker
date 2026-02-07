@@ -29,7 +29,7 @@ TEST(TodoTrackerTest, Serialize) {
   todolist.setTasks(
       {std::make_pair(t0.getUid(), t0), std::make_pair(t1.getUid(), t1)});
 
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
+  auto time_t = std::chrono::system_clock::to_time_t(time);
   json data = {
       {"title", "TodoList"},
       {"number_of_tasks", 2},
@@ -38,15 +38,15 @@ TEST(TodoTrackerTest, Serialize) {
                         {"uid", 0},
                         {"desc", "Do the laundry"},
                         {"status", "todo"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", time_t},
+                        {"updated_date", time_t},
                     },
                     {
                         {"uid", 1},
                         {"desc", "Do my homework"},
                         {"status", "in-progress"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", time_t},
+                        {"updated_date", time_t},
                     },
                 })},
   };
@@ -56,7 +56,7 @@ TEST(TodoTrackerTest, Serialize) {
 
 TEST(TodoTrackerTest, Deserialize) {
   auto time = std::chrono::system_clock::now();
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
+  auto time_t = std::chrono::system_clock::to_time_t(time);
   json data = {
       {"title", "TodoList"},
       {"number_of_tasks", 2},
@@ -65,15 +65,15 @@ TEST(TodoTrackerTest, Deserialize) {
                         {"uid", 0},
                         {"desc", "Do the laundry"},
                         {"status", "todo"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", time_t},
+                        {"updated_date", time_t},
                     },
                     {
                         {"uid", 1},
                         {"desc", "Do my homework"},
                         {"status", "in-progress"},
-                        {"creation_date", time_f},
-                        {"updated_date", time_f},
+                        {"creation_date", time_t},
+                        {"updated_date", time_t},
                     },
                 })},
   };

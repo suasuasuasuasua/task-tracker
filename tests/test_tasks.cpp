@@ -27,25 +27,25 @@ TEST(TaskTest, Serialize) {
   auto time = std::chrono::system_clock::now();
   auto t = Task(0, "Get groceries", Task::Status::ToDo, time, time);
 
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
+  auto time_t = std::chrono::system_clock::to_time_t(time);
   json data = {{"uid", 0},
                {"desc", "Get groceries"},
                {"status", "todo"},
-               {"creation_date", time_f},
-               {"updated_date", time_f}};
+               {"creation_date", time_t},
+               {"updated_date", time_t}};
 
   EXPECT_EQ(t.serialize(), data);
 }
 
 TEST(TaskTest, Deserialize) {
   auto time = std::chrono::system_clock::now();
-  std::string time_f = std::format("{:%Y%m%d%H%M}", time);
+  auto time_t = std::chrono::system_clock::to_time_t(time);
 
   json data = {{"uid", 0},
                {"desc", "Get groceries"},
                {"status", "todo"},
-               {"creation_date", time_f},
-               {"updated_date", time_f}};
+               {"creation_date", time_t},
+               {"updated_date", time_t}};
 
   auto t = Task::deserialize(data);
 
