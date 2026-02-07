@@ -1,6 +1,6 @@
 BUILD_DIR=build
 CMAKE_BUILD_TYPE=Release # or Debug, RelWithDebInfo, and MinSizeRel
-CMAKE_INSTALL_PREFIX=/usr/local/bin # or ~/.local
+CMAKE_INSTALL_PREFIX=/usr/local # or ~/.local
 PARALLEL= # empty for all cores or speciy integer
 CMAKE_CXX_CLANG_TIDY= # empty to disable clang-tidy check or 'clang-tidy'
 
