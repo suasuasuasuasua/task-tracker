@@ -30,25 +30,6 @@ let
     nlohmann_json
     spdlog
   ];
-
-  buildInputsVersions =
-    let
-      inherit (builtins)
-        lessThan
-        map
-        sort
-        concatStringsSep
-        filter
-        isAttrs
-        hasAttr
-        ;
-      inherit (lib.lists) unique;
-      validPackages = filter (p: isAttrs p && hasAttr "name" p) buildInputs;
-      packages = map (p: "${p.name}") validPackages;
-      sortedUnique = sort lessThan (unique packages);
-      formatted = concatStringsSep "\n" sortedUnique;
-    in
-    formatted;
 in
 stdenv.mkDerivation {
   inherit buildInputs version;
@@ -69,11 +50,7 @@ stdenv.mkDerivation {
   installPhase =
     # bash
     ''
-      # install binaries
       mkdir -p $out/bin
       cp bin/* $out/bin
-
-      # list deps
-      echo "${buildInputsVersions}" > $out/bin/deps.txt
     '';
 }
