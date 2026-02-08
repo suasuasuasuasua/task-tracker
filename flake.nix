@@ -35,12 +35,12 @@
         in
         {
           default = self.packages.${system}.task-cli;
-          task-cli = pkgs.callPackage ./pkgs {
-            inherit self version;
+          task-cli = pkgs.callPackage ./package.nix {
+            inherit version;
             pname = "task-cli";
           };
-          task-tui = pkgs.callPackage ./pkgs {
-            inherit self version;
+          task-tui = pkgs.callPackage ./package.nix {
+            inherit version;
             pname = "task-tui";
           };
         }

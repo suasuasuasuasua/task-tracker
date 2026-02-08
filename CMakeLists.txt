@@ -48,8 +48,6 @@ message(STATUS "${PROJECT_NAME} Build Type: ${CMAKE_BUILD_TYPE}")
 # Set the version for the project
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
-include(FetchContent)
-
 # third-party deps
 if(DEFINED ENV{has_nix})
   message("Using nix deps")
@@ -60,6 +58,7 @@ if(DEFINED ENV{has_nix})
   find_package(spdlog 1.15.3 REQUIRED)
 else()
   message("Fetching deps from git")
+  include(FetchContent)
   FetchContent_Declare(
     argparse
     GIT_REPOSITORY https://github.com/p-ranav/argparse.git
@@ -85,6 +84,15 @@ endif()
 
 add_subdirectory(app)
 add_subdirectory(src)
-add_subdirectory(tests)
 
-enable_testing()
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  set(testing_enabled ON)
+else()
+  set(testing_enabled OFF)
+endif()
+
+option(PACKAGE_TESTS "Build the tests" ${testing_enabled})
+if(PACKAGE_TESTS)
+  add_subdirectory(tests)
+  enable_testing()
+endif()
