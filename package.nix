@@ -3,23 +3,34 @@
   cmake,
   ftxui,
   gtest,
+  lib,
   llvmPackages_21,
   nlohmann_json,
   pname,
-  self,
   spdlog,
   version,
 }:
 let
   inherit (llvmPackages_21) stdenv clang-tools;
+  fs = lib.fileset;
+  sourceFiles = fs.unions [
+    ./Makefile
+    ./VERSION
+    ./package.nix
+    (fs.fileFilter (file: file.hasExt "cpp") ./.)
+    (fs.fileFilter (file: file.hasExt "h") ./.)
+    (fs.fileFilter (file: lib.hasPrefix "CMakeLists" file.name) ./.)
+  ];
 in
 stdenv.mkDerivation {
   inherit pname version;
 
-  src = builtins.path {
-    path = self;
-    name = pname;
-  };
+  src = lib.cleanSource (
+    fs.toSource {
+      root = ./.;
+      fileset = sourceFiles;
+    }
+  );
   buildInputs = [
     argparse
     clang-tools
@@ -29,19 +40,16 @@ stdenv.mkDerivation {
     nlohmann_json
     spdlog
   ];
-  configurePhase = ''
-    export has_nix=true
-  '';
-  cmakeFlags = [
-    "-DCMAKE_BUILD_TYPE=Release"
-  ];
-  buildPhase = ''
-    make build
-  '';
+  preConfigure =
+    # bash
+    ''
+      export has_nix=true
+    '';
+  doCheck = true;
   installPhase = ''
     # install binaries
     mkdir -p $out/bin
-    cp build/bin/* $out/bin
+    cp bin/${pname} $out/bin
 
     # list deps
     touch $out/bin/deps.txt
