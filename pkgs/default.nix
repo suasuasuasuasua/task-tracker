@@ -20,7 +20,7 @@ stdenv.mkDerivation {
     path = self;
     name = "task-tracker";
   };
-  nativeBuildInputs = [
+  buildInputs = [
     argparse
     clang-tools
     cmake
