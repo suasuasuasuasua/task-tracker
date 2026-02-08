@@ -98,6 +98,12 @@ int main(int argc, char *argv[]) {
     std::exit(1);
   }
 
+  // print help and exit if there are no additional subcommands or flags
+  if (argc == 1) {
+    std::cout << program;
+    std::exit(0);
+  }
+
   TodoTracker todolist;
   todolist.from_json(filepath);
 

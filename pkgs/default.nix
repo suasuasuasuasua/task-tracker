@@ -5,6 +5,7 @@
   gtest,
   llvmPackages_21,
   nlohmann_json,
+  pname,
   self,
   spdlog,
   version,
@@ -13,12 +14,11 @@ let
   inherit (llvmPackages_21) stdenv clang-tools;
 in
 stdenv.mkDerivation {
-  inherit version;
+  inherit pname version;
 
-  pname = "task-tracker";
   src = builtins.path {
     path = self;
-    name = "task-tracker";
+    name = pname;
   };
   buildInputs = [
     argparse

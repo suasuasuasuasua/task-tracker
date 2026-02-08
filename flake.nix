@@ -34,9 +34,14 @@
           version = builtins.readFile ./VERSION;
         in
         {
-          default = self.packages.${system}.task-tracker;
-          task-tracker = pkgs.callPackage ./pkgs {
+          default = self.packages.${system}.task-cli;
+          task-cli = pkgs.callPackage ./pkgs {
             inherit self version;
+            pname = "task-cli";
+          };
+          task-tui = pkgs.callPackage ./pkgs {
+            inherit self version;
+            pname = "task-tui";
           };
         }
       );
