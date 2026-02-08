@@ -34,14 +34,28 @@
           version = builtins.readFile ./VERSION;
         in
         {
-          default = self.packages.${system}.task-cli;
-          task-cli = pkgs.callPackage ./package.nix {
+          default = self.packages.${system}.task-tracker;
+          task-tracker = pkgs.callPackage ./package.nix {
             inherit version;
-            pname = "task-cli";
           };
-          task-tui = pkgs.callPackage ./package.nix {
-            inherit version;
-            pname = "task-tui";
+        }
+      );
+      apps = forEachSystem (
+        pkgs:
+        let
+          inherit (pkgs.stdenv.hostPlatform) system;
+        in
+        {
+          default = self.apps.${system}.task-cli;
+          task-cli = {
+            type = "app";
+            program = "${self.packages.${system}.task-tracker}/bin/task-cli";
+            meta.description = "task tracker cli";
+          };
+          task-tui = {
+            type = "app";
+            program = "${self.packages.${system}.task-tracker}/bin/task-tui";
+            meta.description = "task tracker tui";
           };
         }
       );

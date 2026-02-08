@@ -6,7 +6,6 @@
   lib,
   llvmPackages_21,
   nlohmann_json,
-  pname,
   spdlog,
   version,
 }:
@@ -23,8 +22,9 @@ let
   ];
 in
 stdenv.mkDerivation {
-  inherit pname version;
+  inherit version;
 
+  pname = "task-tracker";
   src = lib.cleanSource (
     fs.toSource {
       root = ./.;
@@ -49,7 +49,7 @@ stdenv.mkDerivation {
   installPhase = ''
     # install binaries
     mkdir -p $out/bin
-    cp bin/${pname} $out/bin
+    cp bin/* $out/bin
 
     # list deps
     touch $out/bin/deps.txt
