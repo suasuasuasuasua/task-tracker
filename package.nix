@@ -6,7 +6,6 @@
   lib,
   llvmPackages_21,
   nlohmann_json,
-  pname,
   spdlog,
   version,
 }:
@@ -21,16 +20,7 @@ let
     (fs.fileFilter (file: file.hasExt "h") ./.)
     (fs.fileFilter (file: lib.hasPrefix "CMakeLists" file.name) ./.)
   ];
-in
-stdenv.mkDerivation {
-  inherit pname version;
 
-  src = lib.cleanSource (
-    fs.toSource {
-      root = ./.;
-      fileset = sourceFiles;
-    }
-  );
   buildInputs = [
     argparse
     clang-tools
@@ -40,20 +30,27 @@ stdenv.mkDerivation {
     nlohmann_json
     spdlog
   ];
+in
+stdenv.mkDerivation {
+  inherit buildInputs version;
+
+  pname = "task-tracker";
+  src = lib.cleanSource (
+    fs.toSource {
+      root = ./.;
+      fileset = sourceFiles;
+    }
+  );
   preConfigure =
     # bash
     ''
       export has_nix=true
     '';
   doCheck = true;
-  installPhase = ''
-    # install binaries
-    mkdir -p $out/bin
-    cp bin/${pname} $out/bin
-
-    # list deps
-    touch $out/bin/deps.txt
-    cmake --version >> $out/bin/deps.txt
-    clang --version >> $out/bin/deps.txt
-  '';
+  installPhase =
+    # bash
+    ''
+      mkdir -p $out/bin
+      cp bin/* $out/bin
+    '';
 }
