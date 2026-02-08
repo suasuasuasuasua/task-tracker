@@ -27,27 +27,19 @@
       treefmtEval = forEachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
     in
     {
-      packages.x86_64-linux.default = self.packages.x86_64-linux.task-tracker;
-      packages.x86_64-linux.task-tracker =
+      packages = forEachSystem (
+        pkgs:
         let
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          inherit (pkgs.stdenv.hostPlatform) system;
           version = builtins.readFile ./VERSION;
         in
-        import ./pkgs {
-          inherit self version;
-          inherit (pkgs)
-            argparse
-            cmake
-            ftxui
-            gtest
-            nlohmann_json
-            spdlog
-            ;
-          inherit (pkgs.llvmPackages_21)
-            clang-tools
-            stdenv
-            ;
-        };
+        {
+          default = self.packages.${system}.task-tracker;
+          task-tracker = pkgs.callPackage ./pkgs {
+            inherit self version;
+          };
+        }
+      );
 
       #  for `nix fmt`
       formatter = forEachSystem (
