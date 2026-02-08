@@ -17,10 +17,8 @@ let
     ./Makefile
     ./VERSION
     ./package.nix
-    (fs.fileFilter (file: file.hasExt "cpp") ./app)
-    (fs.fileFilter (file: file.hasExt "cpp") ./src)
-    (fs.fileFilter (file: file.hasExt "cpp") ./tests)
-    (fs.fileFilter (file: file.hasExt "h") ./inc)
+    (fs.fileFilter (file: file.hasExt "cpp") ./.)
+    (fs.fileFilter (file: file.hasExt "h") ./.)
     (fs.fileFilter (file: lib.hasPrefix "CMakeLists" file.name) ./.)
   ];
 in
