@@ -1,16 +1,16 @@
 { self, pkgs, ... }:
-pkgs.mkShell.override { inherit (pkgs.llvmPackages_21) stdenv; } {
-  inherit (self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks-check) shellHook;
-  buildInputs = self.checks.${pkgs.stdenv.hostPlatform.system}.git-hooks-check.enabledPackages;
+let
+  inherit (pkgs.stdenv.hostPlatform) system;
+  package = self.packages.${system}.default;
+
+  inherit (package) buildInputs stdenv;
+in
+pkgs.mkShell.override { inherit stdenv; } {
+  inherit (self.checks.${system}.git-hooks-check) shellHook;
+  buildInputs = buildInputs ++ self.checks.${system}.git-hooks-check.enabledPackages;
 
   packages = with pkgs; [
-    argparse
-    cmake
-    ftxui
     git
-    gtest
-    ninja
-    nlohmann_json
-    spdlog
+    jq
   ];
 }
