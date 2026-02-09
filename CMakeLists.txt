@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(DEFINED ENV{has_nix})
+if($ENV{has_nix})
   # NOTE: nix requires extra steps because include folders are in the nix store
   # https://mzhang.io/posts/2022-03-03-clangd-in-nix/
   #
@@ -49,7 +49,7 @@ message(STATUS "${PROJECT_NAME} Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 # third-party deps
-if(DEFINED ENV{has_nix})
+if($ENV{has_nix})
   message("Using nix deps")
   find_package(GTest 1.17.0 REQUIRED)
   find_package(argparse 3.2 REQUIRED)
