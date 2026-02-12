@@ -1,6 +1,6 @@
 # Task Tracker in C++
 
-A task tracker (todo list) implemented in C++ (targetting C++20) using FTXUI for
+A task tracker (todo list) implemented in C++ (targeting C++20) using FTXUI for
 the tui library.
 
 ## Usage
